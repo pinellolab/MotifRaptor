@@ -21,6 +21,8 @@
 ## Data
 1. VCF file:
 
+   Download VCF file from [here](https://www.dropbox.com/s/9gztf4mdblc44jo/1000G.EUR.QC.plink.simple.vcf?dl=0)
+
 2. Genome 2Bit File:
    
    Download from UCSC website [here](http://hgdownload.soe.ucsc.edu/goldenPath/hg19/bigZips/hg19.2bit) 
