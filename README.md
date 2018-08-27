@@ -45,7 +45,7 @@
       python Motif_Scan.py index -g genome_database -p number_of_threads
      ```
     
-3 Scan motifs using PFM files and the obtained index: 
+3. Scan motifs using PFM files and the obtained index: 
 
      ```
       python Motif_Scan.py pfmscan -gi indexed_genome_database -pfm motif_pfm_folder -mo motifscan_result -p number_of_threads
