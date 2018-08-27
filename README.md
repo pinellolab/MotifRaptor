@@ -1,8 +1,13 @@
 # MotifRaptor
 
 ## Installation
-1. pip install twobitreader
-2. Install mksary
+1. Download files from this repository and keep them in the same folder
+
+2. Extra python packages:
+   ```
+    pip install twobitreader
+   ```
+3. Install mksary
 
    2.1 Download [libdivsufsort](https://goo.gl/hUjvMF)
    
@@ -17,7 +22,7 @@
 
     2.3 Copy the executable "mksary" into your python-working directory
 
-3. Compile the cython code: cythonize -a -i motif_matching_lcp.pyx
+4. Compile the cython code: cythonize -a -i motif_matching_lcp.pyx
 ## Data
 1. VCF file:
 
