@@ -32,23 +32,20 @@
    
    Download from UCSC website [here](http://hgdownload.soe.ucsc.edu/goldenPath/hg19/bigZips/hg19.2bit) 
 
-## Test run
-1. Run the help to test: python Motif_Scan.py -h
+## Building disruption scores genome wide for a list of SNPs from a VCF file
 
-2. Pre-process the VCF file:
+1. Extract the sequences starting from a reference genome and a VCF file:
      ```
       python Process_vcf.py
      ```
 
-3. Two modes of command in Motif_Scan: index, pfmscan
-
-    3.1 Example 1. Index a genome: 
-
+2. Index the obtaines sequences with the variants:
+    
      ```
       python Motif_Scan.py index -g genome_database -p number_of_threads
      ```
     
-    3.2 Example 2. Scan motif PFM files: 
+3 Scan motifs using PFM files and the obtained index: 
 
      ```
       python Motif_Scan.py pfmscan -gi indexed_genome_database -pfm motif_pfm_folder -mo motifscan_result -p number_of_threads
