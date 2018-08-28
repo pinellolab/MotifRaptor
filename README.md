@@ -11,7 +11,9 @@
 
    2.1 Download [libdivsufsort](https://goo.gl/hUjvMF)
    
-   2.2 Build   
+   2.2 Subsititute in the directory libdivsufsort/examples the file "mksary.c" with the one available at the address (https://goo.gl/KBxY8q).
+   
+   2.3 Build   
    ```
     cd libdivsufsort 
     mkdir build 
@@ -20,7 +22,7 @@
     sudo make install
     ```
 
-    2.3 Copy the executable "mksary" into your python-working directory
+    2.4 Copy the executable "mksary" into your python-working directory
 
 4. Compile the cython code: cythonize -a -i motif_matching_lcp.pyx
 ## Data
