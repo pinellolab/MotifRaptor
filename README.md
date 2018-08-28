@@ -9,7 +9,7 @@
    ```
 3. Install mksary
 
-   2.1 Download [libdivsufsort](https://goo.gl/hUjvMF)
+   2.1 Download [libdivsufsort](https://goo.gl/hUjvMF), which is the library available [in GitHub](https://github.com/y-256/libdivsufsort) changed in the file "mksary.c" which now includes the computation of the LCP array.
    
    2.2 Build   
    ```
