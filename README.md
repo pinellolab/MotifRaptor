@@ -50,6 +50,7 @@ Motif-raptor is a toolkit that solely depending on genome-wide motif scanning an
 The data are in folder Demo/RA. There is a jupyter notebook can directly guide the steps.
 
 ### step 0. pre-processing
+
 This step is to generate standard format for hit SNPs and background SNPs. We need three standard format from GWAS summary statistics. Based on the p-value cutoff, the user should define the SNP hits and SNP non-hits lists in text files, and a VCF file for SNP hits. These file should be already in the folder Demo/RA.
 
    ```
@@ -58,7 +59,7 @@ This step is to generate standard format for hit SNPs and background SNPs. We ne
     hitSNP_list.txt
     nonhitSNP_list.txt 
     hitSNP_list.vcf
-    ```
+   ```
 If you don't see these files, you can always make your own with a short python script. This needs to be customized base on each different format in GWAS summary statistics, and applying different cut-offs as you like.
    ```
     import numpy as np
@@ -76,16 +77,15 @@ If you don't see these files, you can always make your own with a short python s
     nonhit_SNP_df_sub.to_csv("nonhitSNP_list.txt", sep='\t',index=None, header=True)
     hit_SNP_cvf_sub=hit_SNP_df[['ID','CHR','POS','A1','A2']]
     hit_SNP_vcf_sub.to_csv("hitSNP_list.vcf", sep='\t',index=None, header=True)
-
-
-    ```
+   ```
+    
 ### step1. run cell type or tissue type characterization
 
    ```
     python package_path/MotifRaptor/MotifRaptor.py celltype -vcf hitSNP_list.vcf \
         -sh hitSNP_list.txt -sn nonhitSNP_list.txt -wd step1_out/ -p 2
     
-    ```
+   ```
    
    Optional trial:
    
