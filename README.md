@@ -1,5 +1,9 @@
 # MotifRaptor
 
+## Demo
+This is an example of characterizing interesting TFs for Rheumatoid Arthritus GWAS data.
+Follow the steps in Demo/RA/RA_demo.ipynb
+
 ## Installation
 1. Download files from this repository and keep them in the same folder
 
@@ -9,9 +13,9 @@
    ```
 3. Install mksary
 
-   2.1 Download [libdivsufsort](https://goo.gl/hUjvMF), which is the library available [in GitHub](https://github.com/y-256/libdivsufsort) changed in the file "mksary.c" which now includes the computation of the LCP array.
+   3.1 Download [libdivsufsort](https://goo.gl/hUjvMF), which is the library available [in GitHub](https://github.com/y-256/libdivsufsort) changed in the file "mksary.c" which now includes the computation of the LCP array.
    
-   2.2 Build   
+   3.2 Build   
    ```
     cd libdivsufsort 
     mkdir build 
@@ -20,7 +24,7 @@
     sudo make install
     ```
 
-    2.3 Copy the executable "mksary" into your python-working directory
+    3.3 Copy the executable "mksary" into your python-working directory
 
 4. Compile the cython code: cythonize -a -i motif_matching_lcp.pyx
 ## Data
