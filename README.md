@@ -2,16 +2,21 @@
 
 ## motivation
 
-The current challenges in post-GWAS study is to infer the potential mechanism and filter further for potential causal SNPs. The current methods are either requiring too much extra experimental data or lacking efficient and systematic way to do it. We would like to design a toolkit that simply an universal sequence-based motif scanning for trait associated SNPs that has been suffering from computational complexity and false positives for years.
+The current challenges in post-GWAS study is to infer potential mechanism and narrow down the validation list for potential causal SNPs. The current methods are either requiring too much extra experimental data or lacking efficient and systematic way to do it. We would like to design a toolkit performing an universal sequence-based motif scanning for trait associated SNPs that has been suffering from computational complexity and false positives for years.
 
 ## Design
 
-Motif-raptor is a toolkit that solely depending on genome-wide motif scanning and thus can be universally applied in any phenotype related functional genomics. We designed a prefix-suffix based method to achieve the computational complexity of the genome wide screening. We also designed informative quantification scores and effective statistics to characterize important cell or tissue types, TFs, and SNP sites given GWAS summary statistics. We tested our method on Rheumatoid Arthritis and re-discover TFs and SNPs specifically contributing to the trait in immune cells. We provide several demos on this site.
+Motif-Raptor (**Motif** dis**R**uption **A**ssociated **P**olymorphism for **T**ranscription fact**OR**s) is a toolkit that solely depending on genome-wide motif scanning around SNPs and thus can be universally applied in any phenotype related functional genomics. We designed a prefix-suffix based method to conqure the computational complexity of this genome wide screening. We also designed informative quantification scores and effective statistics to characterize important cell or tissue types, prioritize Transcription Factors and SNP sites given GWAS summary statistics. We tested our method on Rheumatoid Arthritis and re-discover TFs and SNPs specifically contributing to the trait in immune cells.
+
 
 
 ## Installation
 
 1. Download files or git clone from this repository and keep them in the same folder
+   ```
+   git clone https://github.com/pinellolab/MotifRaptor.git
+   tar zvxf MotifRaptor.tar.gz
+   ```
 
 2. Extra python packages:
    ```
@@ -20,7 +25,11 @@ Motif-raptor is a toolkit that solely depending on genome-wide motif scanning an
    ```
 3. Install mksary
 
-   3.0 Check the file "mksary" in the folder MotifRaptor/SNPScanner, if it's runnable, you don't need to build your own.
+   3.0 Check the file "mksary" in the folder MotifRaptor/SNPScanner, if it's runnable, you don't need to build your own and go to step 4.
+   ```
+   cd MotifRaptor/SNPScanner
+   ./mksary --help
+   ```
 
    3.1 Download [libdivsufsort](https://goo.gl/hUjvMF), which is the library available [in GitHub](https://github.com/y-256/libdivsufsort) changed in the file "mksary.c" which now includes the computation of the LCP array.
    
@@ -33,21 +42,31 @@ Motif-raptor is a toolkit that solely depending on genome-wide motif scanning an
     sudo make install
    ```
 
-    3.3 Copy the executable "mksary" into your python-working directory, here it should be MotifRaptor/SNPScanner.
+    3.3 Copy the executable "mksary" into your python-working directory, here it should be MotifRaptor/SNPScanner. Double check if it's working now.
+   ```
+   ./mksary --help
+   ```    
 
 4. Compile the cython code: cythonize -a -i motif_matching_lcp.pyx
 
 ## Database
 
 1. Download the database from Dropbox link. This database contains essential data for general analysis, including DHS tracks, TF RNA-seq expressions, TF motifs, and TF pre-calucated scores. 
+   ```
+    wget ****
+   ```
 
 2. Unzip the Database.zip, and this folder should be inside the main folder of the MotifRaptor package.
-
+   ```
+   mv Database.zip MotifRaptor/
+   cd MotifRaptor
+   unzip Database.zip
+   ```
 ## Example
 
 ### Data
 
-The data are in folder Demo/RA. There is a jupyter notebook can directly guide the steps.
+The data are in folder Demo/RA. There is a jupyter notebook can directly guide you these steps.
 
 ### step 0. pre-processing
 This step is to generate standard format for hit SNPs and background SNPs. We need three standard format from GWAS summary statistics. Based on the p-value cutoff, the user should define the SNP hits and SNP non-hits lists in text files, and a VCF file for SNP hits. These file should be already in the folder Demo/RA.
@@ -59,8 +78,14 @@ This step is to generate standard format for hit SNPs and background SNPs. We ne
     nonhitSNP_list.txt 
     hitSNP_list.vcf
    ```
-If you don't see these files, you can always make your own with a short python script. This needs to be customized base on each different format in GWAS summary statistics, and applying different cut-offs as you like.
+If you don't see these files, you can always make your own with a short python script. This needs to be customized base on each different format in GWAS summary statistics (Okada et al. 2010 Nature), and applying different cut-offs as you like.
    ```
+   wget https://grasp.nhlbi.nih.gov/downloads/ResultsOctober2016/Okada/RA_GWASmeta_TransEthnic_v2.txt.gz
+   gunzip RA_GWASmeta_TransEthnic_v2.txt.gz
+   
+   python
+   
+   >
     import numpy as np
     import pandas as pd
     sumstatsfile="RA_GWASmeta_TransEthnic_v2.txt"
@@ -76,9 +101,12 @@ If you don't see these files, you can always make your own with a short python s
     nonhit_SNP_df_sub.to_csv("nonhitSNP_list.txt", sep='\t',index=None, header=True)
     hit_SNP_cvf_sub=hit_SNP_df[['ID','CHR','POS','A1','A2']]
     hit_SNP_vcf_sub.to_csv("hitSNP_list.vcf", sep='\t',index=None, header=True)
-
+   >
 
    ```
+The outcome of these codes are generate SNP list for GWAS hit and non-hits based on some cut-off. 
+
+   
 ### step1. run cell type or tissue type characterization
 
    ```
@@ -86,10 +114,22 @@ If you don't see these files, you can always make your own with a short python s
         -sh hitSNP_list.txt -sn nonhitSNP_list.txt -wd step1_out/ -p 2
     
    ```
+**Input:** *hitSNP_list.txt* and *nonhitSNP_list.txt* are two files with the following format:
+
+ID | CHR | POS
+------------ | ------------- | ------------- 
+rs2258734 | 1 | 2483961
+
+*hitSNP_list.vcf* is the file with the following format (with two more columns of the polymorphism information:
+
+ID | CHR | POS | REF | ALT
+------------ | ------------- | ------------- | ------------- | ------------- 
+rs2258734 | 1 | 2483961 | A | G
+
+
+   *Optional trial:*
    
-   Optional trial:
-   
-   Motif raptor also provide module interface to run it in your own python code or Jupyter notebook for lightweight task. For example, you can re-plot the figure after running the previous steps.
+   *Motif raptor also provide module interface to run it in your own python code or Jupyter notebook for lightweight task. For example, you can re-plot the figure after running the previous steps.*
    
    ```
     #optional: plot figure using module CellTypeAnlayzer after running the command
@@ -97,10 +137,37 @@ If you don't see these files, you can always make your own with a short python s
     CellTypeAnalysis.plotfigure_main("all_sorted.pvalue","plot_all_cell_type.pdf")
    ```
 
+**Output:** This visualization ranks the associated cell or tissue types by both p-values (bar length) and odd ratio (numbers behind the bar).
 
-<img src="https://github.com/pinellolab/MotifRaptor/blob/master/Document/pic1.png" alt="drawing" width="800"/>
+<img src="https://github.com/pinellolab/MotifRaptor/blob/master/Document/pic1.png" alt="drawing" width="600"/>
+
+**Usage:**
+   ```
+   python MotifRaptor.py celltype --help
+   
+   usage: MotifRaptor celltype [-h] [-vcf SNP_HIT_VCF] [-sh SNP_HIT]
+                            [-snh SNP_NON_HIT] [-wd WORKDIR] [-p THREAD_NUM]
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -vcf SNP_HIT_VCF, --snp_hit_withseq SNP_HIT_VCF
+                        need header and columns in this text file with
+                        sequence (CHR is only a number): ID CHR POS REF ALT
+  -sh SNP_HIT, --snp_hit SNP_HIT
+                        need header and columns in this text file (CHR is only
+                        a number): ID CHR POS
+  -snh SNP_NON_HIT, --snp_non_hit SNP_NON_HIT
+                        need header and columns in this text file (CHR is only
+                        a number): ID CHR POS
+  -wd WORKDIR, --workdir WORKDIR
+                        Working directory
+  -p THREAD_NUM, --threads THREAD_NUM
+                        number of threads
+   ```
 
 ### step2. run motif discovery and filtering
+
+#### step2.1 run through statistics and essential analysis
 
    ```
     #run through the motif scan on all the SNPs
@@ -112,6 +179,43 @@ If you don't see these files, you can always make your own with a short python s
      -bg genome -m test_motif.txt -p 2
    ```
     
+
+**Input:** The bed file for SNP hits and the sequence information are obtained from Step1 "cell type characterization". But you need to determine the background and the motifs you want to test.
+
+You may use "genome" in "-g" to use genome wide SNPs as the baseline distribution.
+You may use "all" in "-m" to test all of the Transcription Factors collected in the database. But you may specificy a file *test_motif.txt* to run a test for only a few Transcription Factors. Each motif should take a line, with the format of "motifID\_\_motifname" which pwm files can be found in the Database. For example:
+   ```
+    MA0062.1__GABPA
+    MA0105.1__NFKB1
+    MA0518.1__Stat4
+   ```
+**Output:** Scores for SNP hits are calculated as text files, including a huge background folder. The outcome of this partial step is not viewable. You need to run the next step to get a summazied text and figures.
+
+   ```
+   python MotifRaptor.py snpmotif --help
+usage: MotifRaptor snpmotif [-h] [-wd WORKDIR] [-c CELL_TYPE]
+                            [-sb HIT_SNP_UNION_BED] [-se HIT_SNP_UNION]
+                            [-bg BG_SNPS] [-m MOTIF_LIST] [-p THREAD_NUM]
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -wd WORKDIR, --workdir WORKDIR
+                        Working directory
+  -c CELL_TYPE, --cell_type CELL_TYPE
+                        Cell type or Tissue type ID
+  -sb HIT_SNP_UNION_BED, --snp_hit_bed HIT_SNP_UNION_BED
+                        hit snps on union bed file, usually from step1
+  -se HIT_SNP_UNION, --snp_hit_seq HIT_SNP_UNION
+                        hit snps with sequence information, usually from step1
+  -bg BG_SNPS, --bg_snp BG_SNPS
+                        background snp list file or (genome)
+  -m MOTIF_LIST, --motifs MOTIF_LIST
+                        motif list file, no header, or (all)
+  -p THREAD_NUM, --threads THREAD_NUM
+                        number of threads
+   ```
+
+#### step2.2 apply the summary, filter and plot figures
    ```
     #run through the motif scan on all the SNPs
       python package_path/MotifRaptor/MotifRaptor.py motiffilter \
@@ -119,11 +223,29 @@ If you don't see these files, you can always make your own with a short python s
       -ms step2_out/motif_result/all_motifs.pvalue
    ```
    
-<img src="https://github.com/pinellolab/MotifRaptor/blob/master/Document/pic2.png" alt="drawing" width="800"/>
+**Input:** Just specify the working directory from previous step.
+   
+**Output:** The visualization shows the distribution and scoring for the Transcription Factors and narrow down (zoomed in) with the significant/interesting ones.
 
-<img src="https://github.com/pinellolab/MotifRaptor/blob/master/Document/pic3.png" alt="drawing" width="800"/>
+*all motifs*
 
+<img src="https://github.com/pinellolab/MotifRaptor/blob/master/Document/pic2.png" alt="drawing" width="600"/>
 
+*zoomed in motifs*
+
+<img src="https://github.com/pinellolab/MotifRaptor/blob/master/Document/pic3.png" alt="drawing" width="600"/>
+
+   ```
+   python MotifRaptor.py motiffilter --help
+usage: MotifRaptor motiffilter [-h] [-wd WORKDIR] [-ms MOTIFFILE]
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -wd WORKDIR, --workdir WORKDIR
+                        Working directory
+  -ms MOTIFFILE, --motif_summary MOTIFFILE
+                        Motif Summary File, usually from step2
+   ```
    
 ### step3. run filter for SNPs and motifs and draw plots
     
@@ -136,7 +258,12 @@ If you don't see these files, you can always make your own with a short python s
      -bs step2_out/motif_result/background_files/ 
    
    ```
-<img src="https://github.com/pinellolab/MotifRaptor/blob/master/Document/pic6.png" alt="drawing" width="800"/>
+**Input:** Just specify the output directory from step2.
+   
+**Output:** Scatter plot for both SNP hits and non-hits for a picked motif.
+   
+   
+<img src="https://github.com/pinellolab/MotifRaptor/blob/master/Document/pic6.png" alt="drawing" width="600"/>
 
    ```
     # per SNP analysis
@@ -146,7 +273,12 @@ If you don't see these files, you can always make your own with a short python s
     -snp rs7528684 
    
    ```
-<img src="https://github.com/pinellolab/MotifRaptor/blob/master/Document/pic4.png" alt="drawing" width="800"/>
+   
+**Input:** Just specify the output directory from step2.
+   
+**Output:** Scatter plot for transcription factors for a picked SNP.
+  
+<img src="https://github.com/pinellolab/MotifRaptor/blob/master/Document/pic4.png" alt="drawing" width="600"/>
     
    ```
     # draw radar plot for instereing motif and SNP events
@@ -156,7 +288,12 @@ If you don't see these files, you can always make your own with a short python s
     -pid rs7528684:MA0105.1__NFKB1
    ```
 
-<img src="https://github.com/pinellolab/MotifRaptor/blob/master/Document/pic5.png" alt="drawing" width="800"/>
+**Input:** Just specify the output directory from step2.
+   
+**Output:** Radar plot for the features/scores for interesting SNP-motif events.
+
+
+<img src="https://github.com/pinellolab/MotifRaptor/blob/master/Document/pic5.png" alt="drawing" width="400"/>
 
 
 
@@ -214,4 +351,5 @@ optional arguments:
      ```
       python Motif_Scan.py pfmscan -gi indexed_genome_database -pfm motif_pfm_folder -mo motifscan_result -p number_of_threads
      ```
+
 
