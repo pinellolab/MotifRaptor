@@ -229,11 +229,11 @@ optional arguments:
 
 *all motifs*
 
-<img src="https://github.com/pinellolab/MotifRaptor/blob/master/Document/pic2.png" alt="drawing" width="600"/>
+<img src="https://github.com/pinellolab/MotifRaptor/blob/master/Document/pic2.png" alt="drawing" width="400"/>
 
 *zoomed in motifs*
 
-<img src="https://github.com/pinellolab/MotifRaptor/blob/master/Document/pic3.png" alt="drawing" width="600"/>
+<img src="https://github.com/pinellolab/MotifRaptor/blob/master/Document/pic3.png" alt="drawing" width="400"/>
 
    ```
    python MotifRaptor.py motiffilter --help
