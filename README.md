@@ -248,7 +248,8 @@ optional arguments:
    ```
    
 ### step3. run filter for SNPs and motifs and draw plots
-    
+
+#### step3.1 TF specific plot
    ```
     # per motif analysis
      python package_path/MotifRaptor/MotifRaptor.py motifspecific \
@@ -263,8 +264,9 @@ optional arguments:
 **Output:** Scatter plot for both SNP hits and non-hits for a picked motif.
    
    
-<img src="https://github.com/pinellolab/MotifRaptor/blob/master/Document/pic6.png" alt="drawing" width="600"/>
+<img src="https://github.com/pinellolab/MotifRaptor/blob/master/Document/pic6.png" alt="drawing" width="400"/>
 
+#### step3.2 SNP specific plot
    ```
     # per SNP analysis
     python package_path/MotifRaptor/MotifRaptor.py snpspecific \
@@ -278,8 +280,9 @@ optional arguments:
    
 **Output:** Scatter plot for transcription factors for a picked SNP.
   
-<img src="https://github.com/pinellolab/MotifRaptor/blob/master/Document/pic4.png" alt="drawing" width="600"/>
-    
+<img src="https://github.com/pinellolab/MotifRaptor/blob/master/Document/pic4.png" alt="drawing" width="400"/>
+
+#### step3.3 SNP-TF plot    
    ```
     # draw radar plot for instereing motif and SNP events
     python package_path/MotifRaptor/MotifRaptor.py snpmotifradar \
