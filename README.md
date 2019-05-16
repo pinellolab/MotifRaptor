@@ -53,7 +53,7 @@ Motif-Raptor (**Motif** dis**R**uption **A**ssociated **P**olymorphism for **T**
 
 1. Download the database from Dropbox link. This database contains essential data for general analysis, including DHS tracks, TF RNA-seq expressions, TF motifs, and TF pre-calucated scores. 
    ```
-    wget ****
+    wget https://www.dropbox.com/s/9gztf4mdblc44jo/Database.zip?dl=0
    ```
 
 2. Unzip the Database.zip, and this folder should be inside the main folder of the MotifRaptor package.
@@ -185,7 +185,6 @@ optional arguments:
 You may use "genome" in "-g" to use genome wide SNPs as the baseline distribution.
 You may use "all" in "-m" to test all of the Transcription Factors collected in the database. But you may specificy a file *test_motif.txt* to run a test for only a few Transcription Factors. Each motif should take a line, with the format of "motifID\_\_motifname" which pwm files can be found in the Database. For example:
    ```
-    MA0062.1__GABPA
     MA0105.1__NFKB1
     MA0518.1__Stat4
    ```
@@ -282,12 +281,13 @@ optional arguments:
   
 <img src="https://github.com/pinellolab/MotifRaptor/blob/master/Document/pic4.png" alt="drawing" width="400"/>
 
-#### step3.3 SNP-TF plot    
+#### step3.3 SNP-TF radar plot    
    ```
     # draw radar plot for instereing motif and SNP events
     python package_path/MotifRaptor/MotifRaptor.py snpmotifradar \
     -wd step3_out \
     -sm step2_out/result_new_df_motifs_ENCFF512IML.txt \
+    -sf step2_out_CD8-positive-alpha-beta-T-cell/SNP_ENCFF512IML_features.txt \
     -pid rs7528684:MA0105.1__NFKB1
    ```
 
@@ -354,5 +354,4 @@ optional arguments:
      ```
       python Motif_Scan.py pfmscan -gi indexed_genome_database -pfm motif_pfm_folder -mo motifscan_result -p number_of_threads
      ```
-
 
