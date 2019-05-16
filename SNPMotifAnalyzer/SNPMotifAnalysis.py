@@ -9,15 +9,147 @@ from scipy.stats import norm
 
 def area_pvalue_per_motif_from_background(snp_motif_result_df, bg_SNP_df, df_motif_express, motif_scan_folder, outputdir, motif_id):
     #if 'gata' in motif_id.lower() or 'klf1' in motif_id.lower() or 'sox2' in motif_id.lower():
-    usefulcolumns=['motif', 'target_num','background_num','expression','leftside_pvalue','rightside_pvalue','abs_area_score_pvalue']
+    usefulcolumns=['motif', 'target_num','background_num','expression','disrupt_pvalue','enhance_pvalue','abs_area_score_pvalue']
     test_result_df = pd.DataFrame([], index=[0], columns=usefulcolumns)
 
     #if not os.path.exists(score_filename):
     #    return test_result_df
-    
+
+    if not os.path.exists(outputdir):
+        try:
+            os.mkdir(outputdir)
+        except OSError:
+            pass
+
     output_background_folder=os.path.join(outputdir,"background_files")
     if not os.path.exists(output_background_folder):
-        os.mkdir(output_background_folder)
+        try:
+            os.mkdir(output_background_folder)
+        except OSError:
+            pass
+
+    motif_score_filename=os.path.join(motif_scan_folder, motif_id+".scores")
+    SNP_score_dataframe=pd.read_csv(motif_score_filename,sep="\t")
+    SNP_score_dataframe.set_index('UID', inplace=True)
+    score_df=SNP_score_dataframe[(SNP_score_dataframe['binding_ref']>0)|(SNP_score_dataframe['binding_alt']>0)]
+
+    if bg_SNP_df is not None:
+        score_df_sub=score_df.merge(bg_SNP_df, on=['UID','ID'], how='inner')
+    else:
+        score_df_sub=score_df
+    bg_score_filename=os.path.join(output_background_folder,motif_id+".scores")
+
+    score_df_sub=score_df_sub.copy()
+    motif_scale_filename=os.path.join(motif_scan_folder, motif_id+".scale")
+    parameters=pd.read_csv(motif_scale_filename, sep='\t')
+    max_bind=max(parameters.iloc[0]['bg_max_bind_score'],parameters.iloc[0]['theoretic_max_bind_score'])
+    max_disrupt=max(parameters.iloc[0]['bg_max_disrupt_score'],parameters.iloc[0]['theoretic_max_disrupt_score'])
+    x=np.maximum(score_df_sub['binding_alt'],score_df_sub['binding_ref'])
+    y=score_df_sub['binding_alt']-score_df_sub['binding_ref']
+    scaled_binding_score_list=np.minimum(x/max_bind,[1]*len(x))
+    score_df_sub['scaled_binding_score']=scaled_binding_score_list
+    scaled_disrupt_score_list=np.sign(y)*np.minimum(np.abs(y/max_disrupt),[1]*len(y))
+    score_df_sub['scaled_disrupt_score']=scaled_disrupt_score_list
+    score_df_sub['scaled_area_score']=score_df_sub['scaled_binding_score']*score_df_sub['scaled_disrupt_score']
+
+    score_df_sub.to_csv(bg_score_filename,sep='\t',index=True)
+
+    target_data=snp_motif_result_df.loc[snp_motif_result_df['motif']==motif_id]['scaled_area_score']
+    bg_data=score_df_sub['scaled_area_score']
+    #report_pvalue=subsampling(target_data,bg_data)
+    pop_mean=np.mean(bg_data)
+    pop_var=np.var(bg_data)
+    test_mean=pop_mean
+
+    test_var=pop_var/(len(target_data))
+
+    if test_var==0:
+        test_var=1E-20
+    t=(np.mean(target_data)-test_mean)/((test_var)**(0.5))
+    report_pvalue_left=norm.cdf(t)
+    report_pvalue_right=1-report_pvalue_left
+    #print(str(test_mean))
+    #print(str(test_var)) 
+    abs_target_data=abs(target_data)
+    abs_bg_data=abs(bg_data)
+    abs_pop_mean=np.mean(abs_bg_data)
+    abs_pop_var=np.var(abs_bg_data)
+    abs_test_mean=abs_pop_mean
+    abs_test_var=abs_pop_var/(len(abs_target_data))
+    if abs_test_var==0:
+        abs_test_var=1E-20
+    abs_t=(np.mean(abs_target_data)-abs_test_mean)/((abs_test_var)**(0.5))
+    report_pvalue_abs=1-norm.cdf(abs_t)
+    '''
+    pos_target=target_data.loc[target_data>0]
+    neg_target=target_data.loc[target_data<0]
+    pos_bg=bg_data.loc[bg_data>0]
+    neg_bg=bg_data.loc[bg_data<0]
+    pos_pop_mean=np.mean(pos_bg)
+    pos_pop_var=np.var(pos_bg)
+    pos_test_mean=pos_pop_mean
+    pos_num=len(pos_target)
+    if pos_num==0:
+        pos_num=pos_num+1
+    pos_test_var=pos_pop_var/(pos_num)
+    if pos_test_var==0:
+        pos_test_var=1E-20
+    pos_t=(np.mean(pos_target)-pos_test_mean)/((pos_test_var)**(0.5))
+    report_pvalue_disrupt=norm.cdf(pos_t)
+
+    neg_pop_mean=np.mean(neg_bg)
+    neg_pop_var=np.var(neg_bg)
+    neg_test_mean=neg_pop_mean
+    neg_num=len(neg_target)
+    if neg_num==0:
+        neg_num=neg_num+1
+    neg_test_var=neg_pop_var/(neg_num)
+    if neg_test_var==0:
+        neg_test_var=1E-20
+    neg_t=(np.mean(neg_target)-neg_test_mean)/((neg_test_var)**(0.5))
+    report_pvalue_enhance=1-norm.cdf(neg_t)
+    '''
+
+    expression_level=0
+    if motif_id in df_motif_express.index:
+        expression_level=df_motif_express.loc[motif_id]['FPKM']
+
+    test_result_df['motif']=[motif_id]
+    test_result_df['target_num']=[str(len(target_data))]
+    test_result_df['background_num']=[str(len(bg_data))]
+    test_result_df['expression']=[str(expression_level)]
+    test_result_df['disrupt_pvalue']=[str(report_pvalue_left)]
+    test_result_df['enhance_pvalue']=[str(report_pvalue_right)]
+    test_result_df['abs_area_score_pvalue']=[str(report_pvalue_abs)]
+    #test_result_df['disrupt_pvalue']=[str(report_pvalue_disrupt)]
+    #test_result_df['enhance_pvalue']=[str(report_pvalue_enhance)]
+
+    outputfilename=os.path.join(output_background_folder, motif_id+".pvalue")
+    test_result_df.to_csv(outputfilename,sep='\t',index=None)
+    test_result_df.set_index('motif', inplace=True)
+    return test_result_df
+
+def area_pvalue_per_motif_from_background_2(snp_motif_result_df, bg_SNP_df, df_motif_express, motif_scan_folder, outputdir, motif_id):
+    #if 'gata' in motif_id.lower() or 'klf1' in motif_id.lower() or 'sox2' in motif_id.lower():
+    usefulcolumns=['motif', 'target_num','background_num','expression','leftside_pvalue','rightside_pvalue','disrupt_pvalue','enhance_pvalue','abs_area_score_pvalue']
+    test_result_df = pd.DataFrame([], index=[0], columns=usefulcolumns)
+
+    #if not os.path.exists(score_filename):
+    #    return test_result_df
+   
+    if not os.path.exists(outputdir):
+        try:
+            os.mkdir(outputdir)
+        except OSError:
+            pass
+ 
+    output_background_folder=os.path.join(outputdir,"background_files")
+    if not os.path.exists(output_background_folder):
+        try:
+            os.mkdir(output_background_folder)
+        except OSError:
+            pass    
+
         
     motif_score_filename=os.path.join(motif_scan_folder, motif_id+".scores")
     SNP_score_dataframe=pd.read_csv(motif_score_filename,sep="\t")
@@ -70,7 +202,36 @@ def area_pvalue_per_motif_from_background(snp_motif_result_df, bg_SNP_df, df_mot
         abs_test_var=1E-20
     abs_t=(np.mean(abs_target_data)-abs_test_mean)/((abs_test_var)**(0.5))
     report_pvalue_abs=1-norm.cdf(abs_t)
-    
+   
+    pos_target=target_data.loc[target_data>0]
+    neg_target=target_data.loc[target_data<0]
+    pos_bg=bg_data.loc[bg_data>0]
+    neg_bg=bg_data.loc[bg_data<0]
+    pos_pop_mean=np.mean(pos_bg)
+    pos_pop_var=np.var(pos_bg)
+    pos_test_mean=pos_pop_mean
+    pos_num=len(pos_target)
+    if pos_num==0:
+        pos_num=pos_num+1
+    pos_test_var=pos_pop_var/(pos_num)
+    if pos_test_var==0:
+        pos_test_var=1E-20
+    pos_t=(np.mean(pos_target)-pos_test_mean)/((pos_test_var)**(0.5))
+    report_pvalue_disrupt=norm.cdf(pos_t)
+
+    neg_pop_mean=np.mean(neg_bg)
+    neg_pop_var=np.var(neg_bg)
+    neg_test_mean=neg_pop_mean
+    neg_num=len(neg_target)
+    if neg_num==0:
+        neg_num=neg_num+1
+    neg_test_var=neg_pop_var/(neg_num)
+    if neg_test_var==0:
+        neg_test_var=1E-20
+    neg_t=(np.mean(neg_target)-neg_test_mean)/((neg_test_var)**(0.5))
+    report_pvalue_enhance=1-norm.cdf(neg_t)
+
+ 
     expression_level=0
     if motif_id in df_motif_express.index:
         expression_level=df_motif_express.loc[motif_id]['FPKM']
@@ -82,6 +243,10 @@ def area_pvalue_per_motif_from_background(snp_motif_result_df, bg_SNP_df, df_mot
     test_result_df['leftside_pvalue']=[str(report_pvalue_left)]
     test_result_df['rightside_pvalue']=[str(report_pvalue_right)]
     test_result_df['abs_area_score_pvalue']=[str(report_pvalue_abs)]
+    test_result_df['disrupt_pvalue']=[str(report_pvalue_disrupt)]
+    test_result_df['enhance_pvalue']=[str(report_pvalue_enhance)]
+
+
 
     outputfilename=os.path.join(output_background_folder, motif_id+".pvalue")
     test_result_df.to_csv(outputfilename,sep='\t',index=None)

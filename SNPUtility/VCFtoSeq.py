@@ -49,8 +49,7 @@ def extract_sequence_ref_alt(genome,window_size,snp):
     
     return snp
 
-
-def process_chunk(df):
+def process_chunk(genome, window_size, df):
     #genome = twobitreader.TwoBitFile("hg19.2bit")
     compute_ref_alt=partial(extract_sequence_ref_alt,genome,window_size)
     return df.apply(compute_ref_alt, axis=1)
@@ -81,9 +80,9 @@ df_snps=pd.read_table(vcf_filename,sep='\t',header=0,
 #window_size=30
 mask_repetitive=False
 genome = twobitreader.TwoBitFile(genome_filename)
-
+process_chunk_partial=partial(process_chunk, genome, window_size)
 p = mp.Pool(processes=numberofthreads)
-pool_results = p.map(process_chunk,np.array_split(df_snps,numberofthreads))
+pool_results = p.map(process_chunk_partial,np.array_split(df_snps,numberofthreads))
 p.close()
 p.join()
 

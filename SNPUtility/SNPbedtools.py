@@ -26,7 +26,7 @@ def generateSNPBed(SNPfilename,SNPbedfilename):
     os.system(sortcommand)
 
 def generateSNPBed_fast(SNPfilename,SNPbedfilename):
-    output_hitdataframe=pd.read_csv(SNPfilename,sep='\t',header=0)
+    output_hitdataframe=pd.read_csv(SNPfilename,sep='\t',header=0,dtype={"ID":str, "POS":int, "CHR":str})
     SNP_score_dataframe_sub=output_hitdataframe
     SNP_score_dataframe_sub=output_hitdataframe
     SNP_score_dataframe_sub['POS1']=SNP_score_dataframe_sub['POS']-1

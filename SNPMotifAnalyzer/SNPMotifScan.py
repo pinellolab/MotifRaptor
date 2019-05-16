@@ -195,9 +195,109 @@ def calculate_raw_area_score(binding_score, disrupt_score):
     area_score=sign*abs(binding_score*disrupt_score)
     return area_score
 
+####def calculate_area_on_the_fly_new_3(currentSNP, motif_pfm_folder, motif_id):
 def calculate_area_on_the_fly_new(currentSNP, motif_pfm_folder, motif_id):
     motif_pfm_filename=os.path.join(motif_pfm_folder, motif_id+".pfm")
-    motif_pfm_matrix=generate_pfm_matrix(motif_pfm_filename, 1E-4, None)
+    motif_pfm_matrix=generate_pfm_matrix(motif_pfm_filename, 1E-3, None)
+    motif_len=motif_pfm_matrix.shape[1]
+    motif_hits_ref = extract_all_motifs_triplets_new(motif_pfm_matrix, motif_len, currentSNP.seq_ref, currentSNP.pos_start_ref,currentSNP.pos_end_ref)
+    motif_hits_alt = extract_all_motifs_triplets_new(motif_pfm_matrix, motif_len, currentSNP.seq_alt, currentSNP.pos_start_alt,currentSNP.pos_end_alt)
+    disruption_area_score=0
+    disruption_score=0
+    reference_part=(0,0,0)
+    alternative_part=(0,0,0)
+    offset=currentSNP.pos_end_alt-currentSNP.pos_start_alt-(currentSNP.pos_end_ref-currentSNP.pos_start_ref)
+    
+    max_bind_ref_key=0
+    max_bind_ref=-999999
+    for key_pos in motif_hits_ref.keys():
+        this_part=motif_hits_ref[key_pos]
+        if float(this_part[2])>max_bind_ref:
+            max_bind_ref=float(this_part[2])
+            max_bind_ref_key=key_pos
+    max_bind_alt_key=0
+    max_bind_alt=-999999
+    for key_pos in motif_hits_alt.keys():
+        this_part=motif_hits_alt[key_pos]
+        if float(this_part[2])>max_bind_alt:
+            max_bind_alt=float(this_part[2])
+            max_bind_alt_key=key_pos
+    
+    minimal_area_score=999999
+    if max_bind_ref>=max_bind_alt and max_bind_ref>0:
+        key_pos=max_bind_ref_key
+        this_part=motif_hits_ref[key_pos]
+        counter_parts=[]
+        counter_key_set=set()
+        this_disrupt_score=0
+        conservative_one=(0,0,0)
+        if abs(key_pos)-1<=currentSNP.pos_start_ref:
+            counter_key_pos=key_pos
+            if counter_key_pos in motif_hits_alt:
+                counter_key_set.add(counter_key_pos)
+        if abs(key_pos)+motif_len-1>currentSNP.pos_end_ref:
+            start_key_pos=key_pos
+            end_key_pos=np.sign(key_pos)*abs(key_pos+offset)
+            iter_count=min(start_key_pos,end_key_pos)
+            while iter_count<=max(start_key_pos,end_key_pos):
+                counter_key_set.add(iter_count)
+                iter_count=iter_count+1
+        for iter_key_pos in counter_key_set:
+            if iter_key_pos in motif_hits_alt:
+                counter_parts.append(motif_hits_alt[iter_key_pos])
+        for counter_part in counter_parts:
+            this_part_2=this_part[2]
+            counter_part_2=counter_part[2]
+            diff_score=counter_part_2-this_part_2
+            this_area_score=calculate_raw_area_score(this_part_2, diff_score)
+            if abs(this_area_score)<abs(minimal_area_score):
+                minimal_area_score=this_area_score
+                disruption_area_score=this_area_score
+                disruption_score=diff_score
+                reference_part=this_part
+                alternative_part=counter_part
+
+    elif max_bind_alt>=max_bind_ref and max_bind_alt>0:
+        key_pos=max_bind_alt_key
+        this_part=motif_hits_alt[key_pos]
+        counter_parts=[]
+        counter_key_set=set()
+        this_disrupt_score=0
+        conservative_one=(0,0,0)
+        if abs(key_pos)-1<=currentSNP.pos_start_alt:
+            counter_key_pos=key_pos
+            if counter_key_pos in motif_hits_ref:
+                counter_key_set.add(counter_key_pos)
+        if abs(key_pos)+motif_len-1>currentSNP.pos_end_alt:
+            start_key_pos=key_pos
+            end_key_pos=np.sign(key_pos)*abs(key_pos+offset)
+            iter_count=min(start_key_pos,end_key_pos)
+            while iter_count<=max(start_key_pos,end_key_pos):
+                counter_key_set.add(iter_count)
+                iter_count=iter_count+1
+        for iter_key_pos in counter_key_set:
+            if iter_key_pos in motif_hits_ref:
+                counter_parts.append(motif_hits_ref[iter_key_pos])
+        for counter_part in counter_parts:
+            this_part_2=this_part[2]
+            counter_part_2=counter_part[2]
+            diff_score=this_part_2-counter_part_2
+            this_area_score=calculate_raw_area_score(this_part_2, diff_score)
+            if abs(this_area_score)<abs(minimal_area_score):
+                minimal_area_score=this_area_score
+                disruption_area_score=this_area_score
+                disruption_score=diff_score
+                reference_part=counter_part
+                alternative_part=this_part         
+
+    return disruption_area_score, disruption_score, reference_part, alternative_part
+
+
+
+'''
+def calculate_area_on_the_fly_new(currentSNP, motif_pfm_folder, motif_id):
+    motif_pfm_filename=os.path.join(motif_pfm_folder, motif_id+".pfm")
+    motif_pfm_matrix=generate_pfm_matrix(motif_pfm_filename, 1E-3, None)
     motif_len=motif_pfm_matrix.shape[1]
     motif_hits_ref = extract_all_motifs_triplets_new(motif_pfm_matrix, motif_len, currentSNP.seq_ref, currentSNP.pos_start_ref,currentSNP.pos_end_ref)
     motif_hits_alt = extract_all_motifs_triplets_new(motif_pfm_matrix, motif_len, currentSNP.seq_alt, currentSNP.pos_start_alt,currentSNP.pos_end_alt)
@@ -250,6 +350,17 @@ def calculate_area_on_the_fly_new(currentSNP, motif_pfm_folder, motif_id):
                     minimal_area_score=this_area_score
                     conservative_one=counter_part
                     this_disrupt_score=diff_score
+            elif cur_max_bind==max_binding_score and cur_max_bind>0: #tie, promote the minimum area score
+                max_binding_score=cur_max_bind
+                diff_score=counter_part_2-this_part_2
+                this_area_score=calculate_raw_area_score(max(counter_part_2,this_part_2), diff_score)
+                if abs(this_area_score)<abs(minimal_area_score):
+                    minimal_area_score=this_area_score
+                    conservative_one=counter_part
+                    this_disrupt_score=diff_score
+
+
+
         if minimal_area_score!=999999: #and abs(minimal_area_score)>abs(disruption_area_score):
             disruption_area_score=minimal_area_score
             disruption_score=this_disrupt_score
@@ -258,6 +369,7 @@ def calculate_area_on_the_fly_new(currentSNP, motif_pfm_folder, motif_id):
             
 
     return disruption_area_score, disruption_score, disruption_part, alternative_part
+'''
 
 def getSNPMotif_new(df_snps_valid, background_snp_id_list, df_motif_express, motif_pfm_folder, motif_scan_folder, motif_id):
     
@@ -434,6 +546,15 @@ def calculate_bind_on_the_fly_new(currentSNP, motif_pfm_folder, motif_id):
                     minimal_area_score=this_area_score
                     conservative_one=counter_part
                     this_disrupt_score=diff_score
+            elif cur_max_bind==max_binding_score and cur_max_bind>0: #tie, promote the minimum area score
+                max_binding_score=cur_max_bind
+                diff_score=counter_part_2-this_part_2
+                this_area_score=calculate_raw_area_score(max(counter_part_2,this_part_2), diff_score)
+                if abs(this_area_score)<abs(minimal_area_score):
+                    minimal_area_score=this_area_score
+                    conservative_one=counter_part
+                    this_disrupt_score=diff_score
+
         if minimal_area_score!=999999: #and abs(minimal_area_score)>abs(disruption_area_score):
             disruption_area_score=minimal_area_score
             disruption_score=this_disrupt_score

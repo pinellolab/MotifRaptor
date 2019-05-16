@@ -8,12 +8,16 @@ import multiprocessing
 from functools import partial
 from statsmodels.sandbox.stats.multicomp import multipletests
 import matplotlib
+import matplotlib.pyplot
 #matplotlib.use('agg')
 matplotlib.pyplot.switch_backend('agg')
 import matplotlib.pyplot as plt
 import seaborn as sns
 sns.set_style('white')
 sns.set_context('poster')
+
+def is_non_zero_file(fpath):  
+    return True if os.path.isfile(fpath) and os.path.getsize(fpath) > 0 else False
 
 def celltype_analysis(target_SNP_df, bg_SNP_df, output_sorted_BedTool_hit,output_sorted_BedTool_nonhit, output_dir_motif, DHSdir, celltypetable,celltype):        
     fileaccession=celltypetable[(celltypetable['Biosample term name']==celltype)&(celltypetable['Assay']=='DNase-seq')]['File accession'].iloc[0]
@@ -26,6 +30,8 @@ def celltype_analysis(target_SNP_df, bg_SNP_df, output_sorted_BedTool_hit,output
     (output_sorted_BedTool_hit+a).moveto(targetresultbedfile)
     #(output_sorted_BedTool_nonhit+a_bg).moveto(bgresultbedfile)
     (output_sorted_BedTool_nonhit+a).moveto(bgresultbedfile)
+    if is_non_zero_file(targetresultbedfile)==False:
+        return
     SNP1=pd.read_csv(targetresultbedfile,sep='\t',header=None)
     SNP1.columns=['CHR','START','STOP','ID']
     SNP1=SNP1.set_index('ID')
@@ -44,7 +50,8 @@ def celltype_analysis(target_SNP_df, bg_SNP_df, output_sorted_BedTool_hit,output
     p=len(nonhit_target_index) #2
     #n=len(set(bg_SNP_df.index)) #4
     n=output_sorted_BedTool_nonhit.count()
-    oddsratio, pvalue = stats.fisher_exact([[q, m-q], [p, n-p]])
+    oddsratio, pvalue = stats.fisher_exact([[q, m-q], [p, n-p]],alternative="greater")
+    #oddsratio, pvalue = stats.fisher_exact([[q, m-q], [p, n-p]])
     #oddsratio, pvalue = stats.fisher_exact([[q, p], [m, n]])
     outputfilename=os.path.join(output_dir_motif, celltype+".pvalue")
     outputfile=open(outputfilename,"w")
@@ -63,13 +70,24 @@ def run_celltype_analysis(target_SNP_df, bg_SNP_df, output_sorted_bed_hits,outpu
 
 def run_plot_figure(pdffilename,result_pvalue):
     result_pvalue=result_pvalue.sort_values(by=[7],ascending=False)
+    colorlist=[]
+    for index in result_pvalue.index:
+        odds=result_pvalue.iloc[index][6]
+        qvalue=result_pvalue.iloc[index][8]
+        if odds>1 and qvalue<0.05:
+            colorlist.append('blue')
+        else:
+            colorlist.append('grey')
+    colorlist.reverse()
     plt.rc('pdf', fonttype=42)
     plt.figure(figsize=(10,20))
     ybars=result_pvalue[0]
     y_pos = np.arange(len(ybars))
     xbars=-np.log10(result_pvalue[8].tolist())
     labels=["{0:.2f}".format(round(float(f),2)) for f in result_pvalue[6]]
-    plt.barh(y_pos, xbars,color='blue')
+    #print(xbars)
+    #print(colorlist)
+    plt.barh(y_pos, xbars,color=colorlist)
     plt.plot([-np.log10(0.05),-np.log10(0.05)],[-100,100],'r--')
     plt.ylim([-2,84])
     plt.yticks(y_pos, ybars)
@@ -128,5 +146,6 @@ def celltypeanalysis_main(work_dir,target_SNP_df, bg_SNP_df,numberofthreads):
     final_all_output_file=os.path.join(output_beds_dir,"all_sorted.pvalue")
     result_pvalue.to_csv(final_all_output_file,sep="\t",index=None,header=None)
     
+    result_pvalue_plot=pd.read_csv(final_all_output_file,sep="\t",header=None)
     plotpdffilename=os.path.join(output_beds_dir,"plot_cell_type_analysis.pdf")
-    run_plot_figure(plotpdffilename, result_pvalue)
+    run_plot_figure(plotpdffilename, result_pvalue_plot)
