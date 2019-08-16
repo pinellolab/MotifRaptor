@@ -1,4 +1,5 @@
 import numpy as np
+import numbers
 import pandas as pd
 import os
 import scipy.stats as stats
@@ -34,6 +35,83 @@ def calculate_expression_pvalue(all_expression, expression, motif_id):
     z_score=(expression-m)/s
     p_value=1-scipy.stats.norm.cdf(z_score)
     return z_score, p_value
+
+def qqplot(x, y, quantiles=None, interpolation='nearest', ax=None, rug=False,
+           rug_length=0.05, rug_kwargs=None, **kwargs):
+    """Draw a quantile-quantile plot for `x` versus `y`.
+
+    Parameters
+    ----------
+    x, y : array-like
+        One-dimensional numeric arrays.
+
+    ax : matplotlib.axes.Axes, optional
+        Axes on which to plot. If not provided, the current axes will be used.
+
+    quantiles : int or array-like, optional
+        Quantiles to include in the plot. This can be an array of quantiles, in
+        which case only the specified quantiles of `x` and `y` will be plotted.
+        If this is an int `n`, then the quantiles will be `n` evenly spaced
+        points between 0 and 1. If this is None, then `min(len(x), len(y))`
+        evenly spaced quantiles between 0 and 1 will be computed.
+
+    interpolation : {‘linear’, ‘lower’, ‘higher’, ‘midpoint’, ‘nearest’}
+        Specify the interpolation method used to find quantiles when `quantiles`
+        is an int or None. See the documentation for numpy.quantile().
+
+    rug : bool, optional
+        If True, draw a rug plot representing both samples on the horizontal and
+        vertical axes. If False, no rug plot is drawn.
+
+    rug_length : float in [0, 1], optional
+        Specifies the length of the rug plot lines as a fraction of the total
+        vertical or horizontal length.
+
+    rug_kwargs : dict of keyword arguments
+        Keyword arguments to pass to matplotlib.axes.Axes.axvline() and
+        matplotlib.axes.Axes.axhline() when drawing rug plots.
+
+    kwargs : dict of keyword arguments
+        Keyword arguments to pass to matplotlib.axes.Axes.scatter() when drawing
+        the q-q plot.
+    """
+    # Get current axes if none are provided
+    if ax is None:
+        ax = plt.gca()
+
+    if quantiles is None:
+        quantiles = min(len(x), len(y))
+
+    # Compute quantiles of the two samples
+    if isinstance(quantiles, numbers.Integral):
+        quantiles = np.linspace(start=0, stop=1, num=int(quantiles))
+    else:
+        quantiles = np.atleast_1d(np.sort(quantiles))
+    #x_quantiles = np.quantile(x, quantiles, interpolation=interpolation)
+    a=pd.Series(x.tolist())
+    x_quantiles = a.quantile(quantiles, interpolation=interpolation)
+    #y_quantiles = np.quantile(y, quantiles, interpolation=interpolation)
+    b=pd.Series(y.tolist())
+    y_quantiles = b.quantile(quantiles, interpolation=interpolation)
+    # Draw the rug plots if requested
+    if rug:
+        # Default rug plot settings
+        rug_x_params = dict(ymin=0, ymax=rug_length, c='gray', alpha=0.5)
+        rug_y_params = dict(xmin=0, xmax=rug_length, c='gray', alpha=0.5)
+
+        # Override default setting by any user-specified settings
+        if rug_kwargs is not None:
+            rug_x_params.update(rug_kwargs)
+            rug_y_params.update(rug_kwargs)
+
+        # Draw the rug plots
+        for point in x:
+            ax.axvline(point, **rug_x_params)
+        for point in y:
+            ax.axhline(point, **rug_y_params)
+
+    # Draw the q-q plot
+    ax.scatter(x_quantiles, y_quantiles, **kwargs)
 
 def plot_radar_df(radar_df,savefilename):
     categories=list(radar_df)[1:]
@@ -73,7 +151,7 @@ def plot_radar_df(radar_df,savefilename):
     plt.savefig(savefilename, bbox_inches='tight', pad_inches=0)
     #plt.show()
 
-def plot_motif_snp_pair_main(snp_motif_result_file, all_expression_file,snp_id, motif_id_name, rsid_motifid, pdffilename, snpfeaturefile):
+def plot_motif_snp_pair_main(snp_motif_result_file, all_expression_file,snp_id, motif_id_name, rsid_motifid, pdffilename, snpfeaturefile, catofile):
     snp_motif_result_df=pd.read_csv(snp_motif_result_file, sep='\t')
     hit_df_sub=snp_motif_result_df.loc[snp_motif_result_df['ID']==snp_id]
 
@@ -104,7 +182,14 @@ def plot_motif_snp_pair_main(snp_motif_result_file, all_expression_file,snp_id, 
         score=min(max(0,score)/max_score,1)
         radar_dict[column_name]=score
 
-
+    #old way to plot cato score
+    cato_df=pd.read_csv(catofile,sep="\t",header=0)
+    motif_id=motif_id_name.split("__")[0]
+    cato_score_hits=cato_df[(cato_df['rsid']==snp_id)&(cato_df['motifid']==motif_id)]['score'].values
+    cato_score=0.0
+    if len(cato_score_hits)>0:
+        cato_score=cato_score_hits[0]
+    radar_dict['CATO']=cato_score
 
     radar_df = pd.DataFrame(radar_dict)
 
@@ -223,17 +308,22 @@ def plot_motif_specific_main(snp_motif_result_file, bg_score_folder, motif_id_na
     fig, axs = plt.subplots(1, 1, figsize=(10, 10))
     sns.distplot( score_df["scaled_area_score"] , color="black", bins=50, label="SNP-background", kde_kws={"bw":0.02})
     sns.distplot( hit_df_sub["scaled_area_score"] , color="red", bins=50, label="SNP-hits", kde_kws={"bw":0.02})
-    sns.plt.legend()
-    sns.plt.xlim(-1,1)
-    sns.plt.grid()
+    #sns.plt.legend()
+    #sns.plt.xlim(-1,1)
+    #sns.plt.grid()
+    plt.legend()
+    plt.xlim(-1,1)
+    plt.grid()
     axs.set(xlabel='Area Score')
     area_pdf_1=pngfilename.replace(".png","_area1.pdf")
-    sns.plt.savefig(area_pdf_1)
+    #sns.plt.savefig(area_pdf_1)
+    plt.savefig(area_pdf_1)
 
     f, axes = plt.subplots(2, 1, figsize=(7, 7), sharex=True)
     sns.distplot( score_df["scaled_area_score"] , color="black", bins=50, ax=axes[0],label="SNP-background")
     sns.distplot( hit_df_sub["scaled_area_score"] , color="red", bins=50, ax=axes[1], label="SNP-hits")
-    sns.plt.xlim(-1,1)
+    #sns.plt.xlim(-1,1)
+    plt.xlim(-1,1)
     axes[0].legend()
     axes[0].set(xlabel='')
     axes[0].grid(True)
@@ -241,8 +331,47 @@ def plot_motif_specific_main(snp_motif_result_file, bg_score_folder, motif_id_na
     axes[1].set(xlabel='Area Score')
     axes[1].grid(True)
     area_pdf_2=pngfilename.replace(".png","_area2.pdf")
-    sns.plt.savefig(area_pdf_2)
+    #sns.plt.savefig(area_pdf_2)
+    plt.savefig(area_pdf_2)
 
+    #plot Q-Q plot for two samples
+    X_array=np.array(score_df["scaled_area_score"])
+    Y_array=np.array(hit_df_sub["scaled_area_score"])
+    qqplot_pdf=pngfilename.replace(".png","_qqplot.pdf")
+    fig=plt.figure(figsize=(10, 10), dpi=80)
+    ax = fig.add_subplot(111)
+    #a=X_array[1:2000]
+    #b=X_array[4001:6000]
+    #qqplot(a,b,c='r', alpha=0.5, edgecolor='k')
+    qqplot(X_array, Y_array, c='r', alpha=0.5, edgecolor='k',quantiles=20)
+    plt.plot([-1,1],[-1,1],'b--')
+    plt.xlabel('SNP-background Area Score')
+    plt.ylabel('SNP-hits Area Score')
+    plt.tight_layout()
+    #plt.title('Q-Q plot')
+    plt.savefig(qqplot_pdf)
+
+    X_all=score_df["scaled_area_score"].tolist()
+    ind=np.random.choice(len(X_all), min(20000,len(X_all)), replace=False).tolist()
+    X_list=[X_all[index] for index in ind]
+    Y_list=hit_df_sub["scaled_area_score"].tolist()
+    #ind=np.random.choice(len(Y_all), min(20000,len(Y_all)), replace=False).tolist()
+    #Y_list = [Y_all[index] for index in ind]
+    X_list_len=len(X_list)
+    Y_list_len=len(Y_list)
+    SNP_list=['background']*X_list_len+['hits']*Y_list_len
+    Motif_list=[motif_id_name]*(X_list_len+Y_list_len)
+    df_violinplot=pd.DataFrame([],index=range(0,X_list_len+Y_list_len), columns=['Area Score','Motif','SNP'])
+    df_violinplot['Area Score']=X_list+Y_list
+    df_violinplot['Motif']=Motif_list
+    df_violinplot['SNP']=SNP_list
+    violinplot_pdf=pngfilename.replace(".png","_violinplot.pdf")
+    fig=plt.figure(figsize=(10, 10), dpi=80)
+    ax = fig.add_subplot(111)
+    palette ={"hits":"red", "background":"grey"}
+    ax = sns.violinplot(x="Motif", y="Area Score", hue="SNP", data=df_violinplot, palette=palette, split=True, scale="area", inner="quartile", scale_hue=True,linewidth=1, bw=0.2)
+    plt.tight_layout()    
+    plt.savefig(violinplot_pdf)
 
 
 def plot_motif_scattering_main(motiffile,all_expression_file,output_motif_summary_filename,motiffigure_filename,exp_cutoff_min, exp_cutoff_max, pvalue_cutoff_min,pvalue_cutoff_max):

@@ -243,8 +243,9 @@ def main():
         all_expression_file=os.path.join(package_path,"Database/hg19/Expression_all/all_expression.csv")
         #conservation_folder=os.path.join(package_path,"Database/hg19/SNP_conservation")
         #SNPMotifPlot.plot_motif_snp_pair_main(snp_motif_result_file, all_expression_file,snp_id, motif_id_name, rsid_motifid, pdffilename, conservation_folder)
+        catofile=os.path.join(package_path,"Database/hg19/SNP_Motif_score/CATO.txt")
         snpfeaturefile=args.snp_feature_file
-        SNPMotifPlot.plot_motif_snp_pair_main(snp_motif_result_file, all_expression_file,snp_id, motif_id_name, rsid_motifid, pdffilename, snpfeaturefile)
+        SNPMotifPlot.plot_motif_snp_pair_main(snp_motif_result_file, all_expression_file,snp_id, motif_id_name, rsid_motifid, pdffilename, snpfeaturefile,catofile)
         print("Done!!!")
 if __name__=="__main__":
     main()
