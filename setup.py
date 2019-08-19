@@ -2,6 +2,8 @@
 from setuptools import setup,find_packages
 import sys
 from pathlib import Path
+from Cython.Build import cythonize
+import os
 
 version="0.1.0"
 
@@ -21,7 +23,7 @@ setup(name='MotifRaptor',
     package_dir={'MotifRaptor':'MotifRaptor'},
     package_data={'MotifRaptor': ['MotifRaptor/Database/*']},
     include_package_data = True,
-    entry_points = {'console_scripts': ['MotifRaptor=MotifRaptor:main']},
+    entry_points = {'console_scripts': ['MotifRaptor=MotifRaptor.MotifRaptor:main']},
           
     classifiers=[
         'Development Status :: 4 - Beta',
@@ -40,10 +42,13 @@ setup(name='MotifRaptor',
         'numpy',
         'pandas',
         'pybedtools',
+        'pybigwig',
     	'seaborn==0.9.0',
         'scipy',
+        'statsmodels',
         'twobitreader'
-        ]
+        ],
+    ext_modules = cythonize("MotifRaptor/SNPScanner/motif_matching_lcp.pyx")
 
 
 )

@@ -3,10 +3,10 @@ import argparse
 import pandas as pd
 import numpy as np
 import pybedtools
-from SNPUtility import SNPbedtools
-from SNPUtility import SNPfeatures
-from CellTypeAnalyzer import CellTypeAnalysis
-from SNPMotifAnalyzer import SNPMotifPlot
+from .SNPUtility import SNPbedtools
+from .SNPUtility import SNPfeatures
+from .CellTypeAnalyzer import CellTypeAnalysis
+from .SNPMotifAnalyzer import SNPMotifPlot
 #from SLDPAnalyzer import RunSLDP
 
 def main():
