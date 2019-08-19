@@ -9,6 +9,10 @@ version="0.1.0"
 if sys.version_info.major != 3:
     raise RuntimeError('MotifRaptor requires Python 3')
 
+
+from numpy import get_include as numpy_get_include
+numpy_include_dir = [numpy_get_include()]
+
 try:
     import Cython.Distutils
     has_cython = True
@@ -18,7 +22,7 @@ except:
 ext = '.pyx' if has_cython else '.c'
 if os.path.exists("MotifRaptor/SNPScanner/motif_matching_lcp.c"):
     ext = '.c'
-ext_modules = [Extension("MotifRaptor.SNPScanner.motif_matching_lcp",["MotifRaptor/SNPScanner/motif_matching_lcp"+ext],extra_compile_args=['-w']),]
+ext_modules = [Extension("MotifRaptor.SNPScanner.motif_matching_lcp",["MotifRaptor/SNPScanner/motif_matching_lcp"+ext],include_dirs=numpy_include_dir,extra_compile_args=['-w']),]
 if has_cython:
     from Cython.Build import cythonize
     ext_modules = cythonize(ext_modules, language_level=2)
