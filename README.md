@@ -1,16 +1,11 @@
 # MotifRaptor
 
-## motivation
+## Overview
 
 ##### Motivation: 
 Genome-wide association studies (GWAS) have identified thousands of trait-associated common genetic variants, but their functional interpretation is still challenging. Tran-scription factors (TFs) are important in regulating gene expression and their binding sites can be modulated by these variants, however we currently lack a systematic understanding on how this mechanism contributes to a phenotype. 
 ##### Results: 
 We present Motif-Raptor, a TF-centric computational tool that integrates sequence-based predictive models, chromatin accessibility, gene expression datasets and GWAS sum-mary statistics to systematically investigate how TFs are affected by genetic variants. Given trait associated non-coding variants, Motif-Raptor recovers relevant cell types and critical TFs to drive hypotheses regarding their mechanism of action. We tested Motif-Raptor on complex traits such as Rheumatoid Arthritis and Red Blood Cell Count and showed its capability in prioritizing relevant cell types, potential regulatory TFs and non-coding SNPs which have been previously characterized and validated.
-
-
-## Design
-
-Motif-Raptor (**Motif** dis**R**uption **A**ssociated **P**olymorphism for **T**ranscription fact**OR**s) is a toolkit that solely depending on genome-wide motif scanning around SNPs and thus can be universally applied in any phenotype related functional genomics. We designed a prefix-suffix based method to conqure the computational complexity of this genome wide screening. We also designed informative quantification scores and effective statistics to characterize important cell or tissue types, prioritize Transcription Factors and SNP sites given GWAS summary statistics. We tested our method on Rheumatoid Arthritis and re-discover TFs and SNPs specifically contributing to the trait in immune cells.
 
 
 
