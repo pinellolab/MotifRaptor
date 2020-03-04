@@ -3,9 +3,9 @@
 ## Overview
 
 ##### Motivation: 
-Genome-wide association studies (GWAS) have identified thousands of trait-associated common genetic variants, but their functional interpretation is still challenging. Tran-scription factors (TFs) are important in regulating gene expression and their binding sites can be modulated by these variants, however we currently lack a systematic understanding on how this mechanism contributes to a phenotype. 
+Genome-wide association studies (GWAS) have identified thousands of trait-associated common genetic variants, but their functional interpretation is still challenging. Transcription factors (TFs) are important in regulating gene expression and their binding sites can be modulated by these variants, however we currently lack a systematic understanding on how this mechanism contributes to a phenotype. 
 ##### Results: 
-We present Motif-Raptor, a TF-centric computational tool that integrates sequence-based predictive models, chromatin accessibility, gene expression datasets and GWAS sum-mary statistics to systematically investigate how TFs are affected by genetic variants. Given trait associated non-coding variants, Motif-Raptor recovers relevant cell types and critical TFs to drive hypotheses regarding their mechanism of action. We tested Motif-Raptor on complex traits such as Rheumatoid Arthritis and Red Blood Cell Count and showed its capability in prioritizing relevant cell types, potential regulatory TFs and non-coding SNPs which have been previously characterized and validated.
+We present Motif-Raptor, a TF-centric computational tool that integrates sequence-based predictive models, chromatin accessibility, gene expression datasets and GWAS summary statistics to systematically investigate how TFs are affected by genetic variants. Given trait associated non-coding variants, Motif-Raptor recovers relevant cell types and critical TFs to drive hypotheses regarding their mechanism of action. We tested Motif-Raptor on complex traits such as Rheumatoid Arthritis and Red Blood Cell Count and showed its capability in prioritizing relevant cell types, potential regulatory TFs and non-coding SNPs which have been previously characterized and validated.
 
 
 
