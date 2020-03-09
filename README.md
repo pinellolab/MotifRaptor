@@ -35,9 +35,8 @@ Move database into the package folder
    ```
 
 
-## Example
+## Tutorial
 
-### Data
 
 ### step 0. get your input data ready (pre-processing)
 
@@ -372,12 +371,14 @@ optional arguments:
     
    ```
     
-## Optional: Building disruption scores genome wide for a list of SNPs from a VCF file
+<!-- This is commented out.
+## Optional: Calculating disruption scores genome wide for a list of SNPs from a VCF file
 
+### Install Scanner
 1. Download files or git clone from this repository and keep them in the same folder
    ```
    git clone https://github.com/pinellolab/MotifRaptor.git
-   tar zvxf MotifRaptor.tar.gz
+   
    ```
 
 2. Extra python packages:
@@ -392,7 +393,7 @@ optional arguments:
    cd MotifRaptor/SNPScanner
    ./mksary --help
    ```
-
+   *Optional*
    3.1 Download [libdivsufsort](https://goo.gl/hUjvMF), which is the library available [in GitHub](https://github.com/y-256/libdivsufsort) changed in the file "mksary.c" which now includes the computation of the LCP array.
    
    3.2 Build   
@@ -439,3 +440,4 @@ optional arguments:
       python Motif_Scan.py pfmscan -gi indexed_genome_database -pfm motif_pfm_folder -mo motifscan_result -p number_of_threads
      ```
 
+ -->
