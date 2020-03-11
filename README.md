@@ -101,6 +101,7 @@ rs2258734 | 1 | 2483961 | A | G
  *Optional step:*
  
 * Although GWAS summary statistics files may have different columns, given a data file with at least the following columns you can always make the above three input files on your own, with a simple python script.
+
 ID | CHR | POS | REF | ALT | p-value
 ------------ | ------------- | ------------- | ------------- | -------------  | ------------- 
 rs2258734 | 1 | 2483961 | A | G | 0.003
