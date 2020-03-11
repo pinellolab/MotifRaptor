@@ -3,9 +3,9 @@
 ## Overview
 
 ##### Motivation: 
-Genome-wide association studies (GWAS) have identified thousands of trait-associated common genetic variants, but their functional interpretation is still challenging. Transcription factors (TFs) are important in regulating gene expression and their binding sites can be modulated by these variants, however we currently lack a systematic understanding on how this mechanism contributes to a phenotype. 
+Genome-wide association studies (GWAS) have identified thousands of common trait-associated genetic variants but interpretation of their function remains challenging. These genetic variants can overlap the binding sites of transcription factors (TFs) and therefore could alter gene expres-sion. However, we currently lack a systematic understanding on how this mechanism contrib-utes to phenotype. 
 ##### Results: 
-We present Motif-Raptor, a TF-centric computational tool that integrates sequence-based predictive models, chromatin accessibility, gene expression datasets and GWAS summary statistics to systematically investigate how TFs are affected by genetic variants. Given trait associated non-coding variants, Motif-Raptor recovers relevant cell types and critical TFs to drive hypotheses regarding their mechanism of action. We tested Motif-Raptor on complex traits such as Rheumatoid Arthritis and Red Blood Cell Count and showed its capability in prioritizing relevant cell types, potential regulatory TFs and non-coding SNPs which have been previously characterized and validated.
+We present Motif-Raptor, a TF-centric computational tool that integrates sequence-based predic-tive models, chromatin accessibility, gene expression datasets and GWAS summary statistics to systematically investigate how TF function is affected by genetic variants. Given trait associated non-coding variants, Motif-Raptor can recover relevant cell types and critical TFs to drive hy-potheses regarding their mechanism of action. We tested Motif-Raptor on complex traits such as rheumatoid arthritis and red blood cell count and demonstrated its ability to prioritize relevant cell types, potential regulatory TFs and non-coding SNPs which have been previously characterized and validated.
 
 
 
@@ -20,10 +20,12 @@ We present Motif-Raptor, a TF-centric computational tool that integrates sequenc
    ```
 2. Download and Install Database
 
-Download the database from Dropbox link. This database contains essential data for general analysis, including DHS tracks, TF RNA-seq expressions, TF motifs, and TF pre-calucated scores.
+Download the database from Dropbox link. This database contains essential data for general analysis, including DHS tracks, TF RNA-seq expressions, TF motifs, and TF pre-calucated scores. 
+
+*The following file is a database with a small number of TFs, in order to test the tutorial example on a regular machine.*
 
    ```
-   wget https://www.dropbox.com/
+   wget https://www.dropbox.com/s/gxeyzgl5m0u55w8/Database.zip
    unzip Database.zip
    ```
 Move database into the package folder
@@ -31,19 +33,48 @@ Move database into the package folder
    #If a different python version was installed, change "python3.6" into a correspondent name
 
    mv Database $CONDA_PREFIX/lib/python3.6/site-packages/MotifRaptor/
+   
+   #or instead, you can generate a link to link from the package installation path to the database to avoid moving files
+   
+   cd $CONDA_PREFIX/lib/python3.6/site-packages/MotifRaptor/
+   ln -s pathTo/Database Database
 
    ```
+ *For generating database from a customized TF list, please refer to the optional section for TF database building at the end of this document. In that case, we strongly recommend run the program on a server. *
 
+## Motif-Raptor Modules Overview
+
+   ```
+    usage: MotifRaptor [-h] [--version]
+                   {celltype,snpmotif,motiffilter,motifspecific,snpspecific,snpmotifradar}
+
+Analyze motifs and SNPs in the dataset.
+
+positional arguments:
+  {celltype,snpmotif,motiffilter,motifspecific,snpspecific,snpmotifradar}
+                        help for subcommand: celltype, snpmotif, motiffilter,
+                        motifspecific, snpspecific
+    celltype            cell type or tissue type analysis help
+    snpmotif            snp motif test help
+    motiffilter         motifs filtering help
+    motifspecific       motifs specific analysis help
+    snpspecific         SNP specific analysis help
+    snpmotifradar       SNP motif radar plot help
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --version             show program's version number and exit
+    
+   ```
 
 ## Tutorial
 
 
-### step 0. get your input data ready (pre-processing)
+### step 0. prepare input data (pre-processing)
 
-This step is to generate standard format for hit SNPs and background SNPs. We need three standard format from GWAS summary statistics. Based on the p-value cutoff, the user should define the SNP hits and SNP non-hits lists in text files, and a VCF file for SNP hits.
+From GWAS summary statistics, we need to specify hit SNPs and background SNPs. Based on the p-value cutoff, the user should define the *SNP hits* and *SNP non-hits* lists in text files, and *a VCF file for SNP hits*. 
 
-Please create a working folder, and download the following three files.
-The data can be also found in folder Demo/RA. 
+For a simple example, please download the following three files.
 
 ```
 
@@ -67,9 +98,15 @@ ID | CHR | POS | REF | ALT
 rs2258734 | 1 | 2483961 | A | G
 
 
- *Optional trial:*
+ *Optional step:*
+ 
+* Although GWAS summary statistics files may have different columns, given a data file with at least the following columns you can always make the above three input files on your own, with a simple python script.
+ID | CHR | POS | REF | ALT | p-value
+------------ | ------------- | ------------- | ------------- | -------------  | ------------- 
+rs2258734 | 1 | 2483961 | A | G | 0.003
 
-*If you don't see these files, you can always make your own with a short python script. This needs to be customized base on each different format in GWAS summary statistics (Okada et al. 2010 Nature), and applying different cut-offs as you like.*
+
+*For example, download the original data file from (Okada et al. 2010 Nature), and applying your own cut-offs to define hits and nonhits.*
    ```
    wget https://grasp.nhlbi.nih.gov/downloads/ResultsOctober2016/Okada/RA_GWASmeta_TransEthnic_v2.txt.gz
    gunzip RA_GWASmeta_TransEthnic_v2.txt.gz
@@ -108,7 +145,12 @@ The outcome of these codes are the three input files mentioned above.
    ```
 
 
-   *Optional trial:*
+**Input:** Three input files from step0.
+**Output:** This visualization ranks the associated cell or tissue types by both p-values (bar length) and odd ratio (numbers behind the bar). Original text file is "*all_sorted.pvalue*"
+
+<img src="https://github.com/pinellolab/MotifRaptor/blob/master/Document/pic1.png" alt="drawing" width="600"/>
+
+   *Optional step:*
    
    *Motif raptor also provide module interface to run it in your own python code or Jupyter notebook for lightweight task. For example, you can re-plot the figure after running the previous steps.*
    
@@ -118,9 +160,6 @@ The outcome of these codes are the three input files mentioned above.
     CellTypeAnalysis.plotfigure_main("step1_out/testcelltype/all_sorted.pvalue","plot_all_cell_type.pdf")
    ```
 
-**Output:** This visualization ranks the associated cell or tissue types by both p-values (bar length) and odd ratio (numbers behind the bar). Original text file is "*all_sorted.pvalue*"
-
-<img src="https://github.com/pinellolab/MotifRaptor/blob/master/Document/pic1.png" alt="drawing" width="600"/>
 
 **Usage:**
    ```
@@ -194,13 +233,14 @@ optional arguments:
    ```
 
 #### step2.2 apply the summary, filter and plot figures
+
+##### step2.2.1 apply filter on TF summary file and visualize the TF plots
+
 **Example:**  
    
    ```
    #calculate statistics for each transcription factor and apply filtering (i.e. expression and pvalue)
    MotifRaptor motiffilter -wd step2_out/motif_result -ms step2_out/motif_result/all_motifs.pvalue
-   #calculate SNP wise features (prepare for step3)
-   MotifRaptor snpfeature -wd step2_out -c "CD8-positive, alpha-beta T cell" -cb step1_out/testcelltype/bedfiles
    ```
    
 **Input:** Just specify the working directory from previous step.
@@ -216,17 +256,7 @@ optional arguments:
 <img src="https://github.com/pinellolab/MotifRaptor/blob/master/Document/pic3.png" alt="drawing" width="400"/>
 
 **Usage:**
-   ```
-   MotifRaptor motiffilter --help
-usage: MotifRaptor motiffilter [-h] [-wd WORKDIR] [-ms MOTIFFILE]
 
-optional arguments:
-  -h, --help            show this help message and exit
-  -wd WORKDIR, --workdir WORKDIR
-                        Working directory
-  -ms MOTIFFILE, --motif_summary MOTIFFILE
-                        Motif Summary File, usually from step2
-   ```
    ```
    MotifRaptor snpfeature -h
    usage: MotifRaptor snpfeature [-h] [-wd WORKDIR] [-c CELL_TYPE]
@@ -241,7 +271,33 @@ optional arguments:
   -cb SNP_BED_FILES, --snp_bed_files SNP_BED_FILES
                         SNP cell type bed file folder, usually from step1
    ```
+##### step2.2.2 pre-calculate the SNP-wise features to prepare visualization in the next steps
+   ```
+   #calculate SNP wise features (prepare for step3)
+   MotifRaptor snpfeature -wd step2_out -c "CD8-positive, alpha-beta T cell" -cb step1_out/testcelltype/bedfiles
+   ```
    
+**Input:** Just specify the working directory from previous step.
+   
+**Output:** The SNP-wise annotations will be added to the folder.
+
+**Usage:**
+
+   ```
+   MotifRaptor snpfeature -h
+   usage: MotifRaptor snpfeature [-h] [-wd WORKDIR] [-c CELL_TYPE]
+                              [-cb SNP_BED_FILES]
+
+ optional arguments:
+  -h, --help            show this help message and exit
+  -wd WORKDIR, --workdir WORKDIR
+                        Working directory
+  -c CELL_TYPE, --cell_type CELL_TYPE
+                        Cell type or Tissue type ID
+  -cb SNP_BED_FILES, --snp_bed_files SNP_BED_FILES
+                        SNP cell type bed file folder, usually from step1
+   ```
+
 ### step3. SNP and TF events visualization
 
 #### step3.1 TF specific plot
@@ -346,33 +402,11 @@ optional arguments:
                         SNP motif pair-wise ID
 ```
 
-## Total Modules and usages
 
-   ```
-    usage: MotifRaptor [-h] [--version]
-                   {celltype,snpmotif,motiffilter,motifspecific,snpspecific,snpmotifradar}
-
-Analyze motifs and SNPs in the dataset.
-
-positional arguments:
-  {celltype,snpmotif,motiffilter,motifspecific,snpspecific,snpmotifradar}
-                        help for subcommand: celltype, snpmotif, motiffilter,
-                        motifspecific, snpspecific
-    celltype            cell type or tissue type analysis help
-    snpmotif            snp motif test help
-    motiffilter         motifs filtering help
-    motifspecific       motifs specific analysis help
-    snpspecific         SNP specific analysis help
-    snpmotifradar       SNP motif radar plot help
-
-optional arguments:
-  -h, --help            show this help message and exit
-  --version             show program's version number and exit
     
-   ```
-    
-<!-- This is commented out.
-## Optional: Calculating disruption scores genome wide for a list of SNPs from a VCF file
+
+## Optional Step: Generating Database from a TF list.
+Calculating disruption scores genome wide for a list of SNPs from a VCF file
 
 ### Install Scanner
 1. Download files or git clone from this repository and keep them in the same folder
@@ -440,4 +474,4 @@ optional arguments:
       python Motif_Scan.py pfmscan -gi indexed_genome_database -pfm motif_pfm_folder -mo motifscan_result -p number_of_threads
      ```
 
- -->
+ 
