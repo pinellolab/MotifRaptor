@@ -41,7 +41,8 @@ Move database into the package folder
 
    ```
  *For a complete TF list, please download here. We strongly recommend run the program on a server. *
-    ```
+ 
+   ```
    wget https://www.dropbox.com
    unzip Database.zip
    ```
@@ -85,6 +86,7 @@ rs2258734 | 1 | 2483961 | A | G | 0.003
 From these columns and the following code, you can make three files *SNP hits* and *SNP non-hits* lists in text files, and *a VCF file for SNP hits*
 
 ```
+python code
 ```
 
 
