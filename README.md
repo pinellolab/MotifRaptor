@@ -40,7 +40,11 @@ Move database into the package folder
    ln -s pathTo/Database Database
 
    ```
- *For generating database from a customized TF list, please refer to the optional section for TF database building at the end of this document. In that case, we strongly recommend run the program on a server. *
+ *For a complete TF list, please download here. We strongly recommend run the program on a server. *
+    ```
+   wget https://www.dropbox.com
+   unzip Database.zip
+   ```
 
 ## Motif-Raptor Modules Overview
 
@@ -72,17 +76,25 @@ optional arguments:
 
 ### step 0. prepare input data (pre-processing)
 
-From GWAS summary statistics, we need to specify hit SNPs and background SNPs. Based on the p-value cutoff, the user should define the *SNP hits* and *SNP non-hits* lists in text files, and *a VCF file for SNP hits*. 
+Run Motif-Raptor from GWAS summary statistics. You may get summary statistics from UKBiobank, published paper, or other resources. These files may provide diffrent information. Please make sure the file contains the following columns.
 
-For a simple example, please download the following three files.
+ID | CHR | POS | REF | ALT | p-value
+------------ | ------------- | ------------- | ------------- | -------------  | ------------- 
+rs2258734 | 1 | 2483961 | A | G | 0.003
+
+From these columns and the following code, you can make three files *SNP hits* and *SNP non-hits* lists in text files, and *a VCF file for SNP hits*
+
+```
+```
+
+
+For a simple example, please download the following three files directly. These files are generated from (Okada et al. 2010 Nature)
 
 ```
 
 wget https://www.dropbox.com/s/as5i16fur4g90m0/hitSNP_list.txt
 wget https://www.dropbox.com/s/pq4ln4x19k567ua/nonhitSNP_list.txt
 wget https://www.dropbox.com/s/939b3eb8cu1pd56/hitSNP_list.vcf
-
-#These file should be already in the folder Demo/RA.
 
 ```
 **Check Input Format:** *hitSNP_list.txt* and *nonhitSNP_list.txt* are two files with the following format:
@@ -97,7 +109,7 @@ ID | CHR | POS | REF | ALT
 ------------ | ------------- | ------------- | ------------- | ------------- 
 rs2258734 | 1 | 2483961 | A | G
 
-
+<!--
  *Optional step:*
  
 * Although GWAS summary statistics files may have different columns, given a data file with at least the following columns you can always make the above three input files on your own, with a simple python script.
@@ -134,7 +146,7 @@ rs2258734 | 1 | 2483961 | A | G | 0.003
 
    ```
 The outcome of these codes are the three input files mentioned above. 
-
+-->
    
 ### step1. run cell type or tissue type characterization
 
@@ -409,6 +421,7 @@ optional arguments:
 ## Optional Step: Generating Database from a TF list.
 Calculating disruption scores genome wide for a list of SNPs from a VCF file
 
+<!--
 ### Install Scanner
 1. Download files or git clone from this repository and keep them in the same folder
    ```
@@ -475,4 +488,4 @@ Calculating disruption scores genome wide for a list of SNPs from a VCF file
       python Motif_Scan.py pfmscan -gi indexed_genome_database -pfm motif_pfm_folder -mo motifscan_result -p number_of_threads
      ```
 
- 
+ -->
