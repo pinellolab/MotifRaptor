@@ -3,16 +3,37 @@ import argparse
 import pandas as pd
 import numpy as np
 import pybedtools
-from .SNPUtility import SNPbedtools
-from .SNPUtility import SNPfeatures
-from .CellTypeAnalyzer import CellTypeAnalysis
-from .SNPMotifAnalyzer import SNPMotifPlot
+#from .SNPUtility import SNPbedtools
+#from .SNPUtility import SNPfeatures
+#from .CellTypeAnalyzer import CellTypeAnalysis
+#from .SNPMotifAnalyzer import SNPMotifPlot
+#from SNPUtility import SNPbedtools
+#from SNPUtility import SNPfeatures
+#from CellTypeAnalyzer import CellTypeAnalysis
+#from SNPMotifAnalyzer import SNPMotifPlot
 #from SLDPAnalyzer import RunSLDP
+
+if __package__:
+    from .SNPUtility import SNPbedtools
+    from .SNPUtility import SNPfeatures
+    from .SNPUtility import Preprocess
+    from .CellTypeAnalyzer import CellTypeAnalysis
+    from .SNPMotifAnalyzer import SNPMotifPlot
+    from .SNPScanner import Motif_Scan
+else:
+    from SNPUtility import SNPbedtools
+    from SNPUtility import SNPfeatures
+    from SNPUtility import Preprocess
+    from CellTypeAnalyzer import CellTypeAnalysis
+    from SNPMotifAnalyzer import SNPMotifPlot
+    from SNPScanner import Motif_Scan
+
+__version__="0.2.0"
 
 def main():
     parser = argparse.ArgumentParser(prog='MotifRaptor', description='Analyze motifs and SNPs in the dataset.')
     subparsers = parser.add_subparsers(help='help for subcommand: celltype, snpmotif, snpfeature, motiffilter, motifspecific, snpspecific', dest="command")
-    parser.add_argument('--version', action='version', version='%(prog)s 1.0')
+    parser.add_argument('--version', action='version', version='%(prog)s 0.2.0')
     parser_a = subparsers.add_parser('celltype', help='cell type or tissue type analysis help')
     parser_a.add_argument('-vcf', '--snp_hit_withseq', type=str, help='need header and columns in this text file with sequence (CHR is only a number): ID	CHR	POS	REF	ALT',dest="snp_hit_vcf")
     parser_a.add_argument('-sh', '--snp_hit', type=str, help='need header and columns in this text file (CHR is only a number): ID CHR     POS',dest="snp_hit")
@@ -56,20 +77,49 @@ def main():
     parser_f.add_argument('-sf', '--snp_feature_file', type=str, help='SNP feature file, usually from step2',dest="snp_feature_file")
     parser_f.add_argument('-pid', '--snp_motif_id', type=str, help='SNP motif pair-wise ID',dest="snp_motif_id")
 
+    parser_g = subparsers.add_parser('snpscan', help='index help')
+    parser_g.add_argument('-g', '--genome_db', type=str, help='genome_database_folder',dest="genome_db")
+    #parser_g.add_argument('-gi', '--indexed_genome_db', type=str, help='indexed genome_database_folder',dest="indexed_genome_db")
+    parser_g.add_argument('-pfm', '--pfm_folder', type=str, help='motif pmf files folder',dest="pfm_folder")
+    parser_g.add_argument('-mo', '--motifscan_output', type=str, action='store', default='./motifscanfiles', help='Motif Scan Ouput Folder',dest="outputmotifscandir")
+    parser_g.add_argument('-mk', '--mksary', type=str, action='store', default='', help='Mksary program path',dest="mksary_path")
+    parser_g.add_argument('-p', '--threads', type=int, help='number of threads',dest="thread_num")
+
+
+    parser_h = subparsers.add_parser('set', help='Set Path and Global Values')
+    parser_h.add_argument('-pn', '--parametername', type=str, help='Parameter Name',dest="parametername")
+    parser_h.add_argument('-pv', '--parametervalue', type=str, help='Parameter Value',dest="parametervalue")
+
+    parser_i = subparsers.add_parser('info', help='Get Informationa and Print Global Values')
+
+    package_path=os.path.dirname(os.path.abspath(__file__))
+    globalfile=os.path.join(package_path,"globalpara.txt")
+    p_path_1=os.path.join(package_path,"Database/hg19/")
+    p_path_2=os.path.join(package_path,"Database/hg19/motifdatabase/") 
+    global_df=pd.DataFrame({'para':['databasedir','motifdatabasedir'],
+                            'value':[p_path_1,p_path_2]})
+    if os.path.exists(globalfile):
+        global_df=pd.read_csv(globalfile,header=0,sep="\t")
+    global_df.to_csv(globalfile,sep="\t",header=True,index=None)
+
     args = parser.parse_args()
     print(args) 
     #parser.print_help()
-    package_path=os.path.dirname(__file__)    
+    #package_path=os.path.dirname(__file__)
+    global_df=pd.read_csv(globalfile,header=0,sep="\t")
+    package_path_1 = global_df.loc[global_df['para']=="databasedir"]['value']
+    package_path_2 = global_df.loc[global_df['para']=="motifdatabasedir"]['value']
+
     if args.command=="celltype":
         print("Command: fetch the snp information ...")
         if not os.path.exists(args.workdir):
             os.mkdir(args.workdir)
-        genomefilename=os.path.join(package_path,"Database/hg19/hg19.2bit")
+        genomefilename=os.path.join(package_path_1,"hg19.2bit")
         vcftoseq_command="python "+os.path.join(package_path,"SNPUtility/VCFtoSeq.py")+" "+args.snp_hit_vcf+" "+genomefilename+" 0,1,2,3,4 ID,CHR,POS,REF,ALT 30 "+str(args.thread_num)+" "+os.path.join(args.workdir,"hit_snps_seq_pickle")
         print("Command: "+vcftoseq_command)
         status = os.system(vcftoseq_command)
         print("Command: merge with union DHS")
-        DHS_union_filename=os.path.join(package_path,"Database/hg19/union_DHS.bed")  
+        DHS_union_filename=os.path.join(package_path_1,"union_DHS.bed")  
         ####real SNP hits need to calculate on the fly in later steps      
         SNPbedtools.generateSNPBed_fast(os.path.join(args.workdir,"hit_snps_seq_pickle.df.txt"),os.path.join(args.workdir,"tempSNP_hits_sorted.bed"))
         SNPbedtools.overlapSNPandBed(os.path.join(args.workdir,"tempSNP_hits_sorted.bed"), DHS_union_filename, os.path.join(args.workdir,"hitSNP_DHSunion_list.bed"))
@@ -94,12 +144,12 @@ def main():
         hit_snp_union_file=args.hit_snp_union
         bg_genome=args.bg_snps
         print("Command: prepare cell type information...")
-        celltypemappingfile=os.path.join(package_path,"Database/hg19/download_meta_tier123.txt")
+        celltypemappingfile=os.path.join(package_path_1,"download_meta_tier123.txt")
         celltypetable=pd.read_csv(celltypemappingfile,sep='\t')
         fileaccession=celltypetable[(celltypetable['Biosample term name']==celltype)&(celltypetable['Assay']=='DNase-seq')]['File accession'].iloc[0]
         expressionaccession=celltypetable[(celltypetable['Biosample term name']==celltype)&(celltypetable['Assay']=='RNA-seq')]['File accession'].iloc[0]    
         hit_snp_union = pybedtools.BedTool(hit_snp_union_bed)
-        DHSdir=os.path.join(package_path,"Database/hg19/DHS_build/")
+        DHSdir=os.path.join(package_path_1,"DHS_build/")
         targetbedfile=os.path.join(DHSdir, fileaccession+'_target.bed')
         print("File accession :"+fileaccession)
         print("Expression : "+expressionaccession) 
@@ -117,10 +167,10 @@ def main():
         target_snp_filename=os.path.join(args.workdir,"hit_snps_seq_pickle_"+tissue_id+".df.txt")#eg.hit_snps_seq_pickle_ENCFF512IML.df.txt
         background_snp_filename=bg_genome
         motif_list_filename=args.motif_list
-        motif_expression_folder=os.path.join(package_path,"Database/hg19/TF_expression")
+        motif_expression_folder=os.path.join(package_path_1,"TF_expression")
         motif_expression_filename=os.path.join(motif_expression_folder,expressionaccession+".tsv")
-        motif_pfm_folder=os.path.join(package_path,"Database/hg19/motifdatabase/pfmfiles")
-        motif_scan_folder=os.path.join(package_path,"Database/hg19/motifdatabase/motifscanfiles")
+        motif_pfm_folder=os.path.join(package_path_2,"pfmfiles")
+        motif_scan_folder=os.path.join(package_path_2,"motifscanfiles")
         output_filename=os.path.join(args.workdir,"result_new_df_motifs_"+tissue_id+".txt")
         num_of_threads=args.thread_num
    
@@ -162,7 +212,7 @@ def main():
             os.mkdir(args.workdir)
         workdir=args.workdir
         celltype2=args.cell_type.replace("%20"," ")
-        conservationfolder=os.path.join(package_path,"Database/hg19/SNP_conservation")
+        conservationfolder=os.path.join(package_path_1,"SNP_conservation")
         bed_hit=os.path.join(bedfiledir,celltype2+".result.bed")
         bed_nonhit=os.path.join(bedfiledir,celltype2+".result_bg.bed")
         catoutput=os.path.join(args.workdir,"tempallSNP.bed")
@@ -170,10 +220,10 @@ def main():
         os.system(catcommand)
         a = pybedtools.BedTool(catoutput)
         celltype=args.cell_type.replace("%20"," ")
-        celltypemappingfile=os.path.join(package_path,"Database/hg19/download_meta_tier123.txt")
+        celltypemappingfile=os.path.join(package_path_1,"download_meta_tier123.txt")
         celltypetable=pd.read_csv(celltypemappingfile,sep='\t')
         fileaccession=celltypetable[(celltypetable['Biosample term name']==celltype)&(celltypetable['Assay']=='DNase-seq')]['File accession'].iloc[0]
-        DHSdir=os.path.join(package_path,"Database/hg19/DHS_build/")
+        DHSdir=os.path.join(package_path_1,"DHS_build/")
         targetbedfile=os.path.join(DHSdir, fileaccession+'_target.bed')
         b = pybedtools.BedTool(targetbedfile)
         tissue_id=fileaccession
@@ -181,7 +231,7 @@ def main():
 
         #remove exons
         snpbed=os.path.join(workdir,"tempallSNP_"+tissue_id+".bed")
-        exonbed=os.path.join(package_path,"Database/hg19/Homo_sapiens_exons.GRCh37.75.bed")
+        exonbed=os.path.join(package_path_1,"Homo_sapiens_exons.GRCh37.75.bed")
         a = pybedtools.BedTool(snpbed)
         a=a.sort()
         b=pybedtools.BedTool(exonbed)
@@ -203,7 +253,7 @@ def main():
 
     elif args.command=="motiffilter":
         motiffile=args.motiffile
-        all_expression_file=os.path.join(package_path,"Database/hg19/Expression_all/all_expression.csv")
+        all_expression_file=os.path.join(package_path_1,"Expression_all/all_expression.csv")
         if not os.path.exists(args.workdir):
             os.mkdir(args.workdir)
         motiffigure_filename=os.path.join(args.workdir,"plot_motif_summary.pdf")
@@ -226,7 +276,7 @@ def main():
         snp_motif_result_file=args.snp_motif_file
         snp_id=args.snp_id
         pdffilename=os.path.join(args.workdir,"plot_TF_for_"+snp_id+".pdf")
-        all_expression_file=os.path.join(package_path,"Database/hg19/Expression_all/all_expression.csv")
+        all_expression_file=os.path.join(package_path_1,"Expression_all/all_expression.csv")
         SNPMotifPlot.plot_snp_specific_main(snp_motif_result_file, snp_id, all_expression_file,pdffilename)
         print("Done!!!")
     elif args.command=="snpmotifradar":
@@ -240,13 +290,37 @@ def main():
         print("SNP : "+snp_id)
         print("motif :"+motif_id_name)
         pdffilename=os.path.join(args.workdir,"plot_radar_for_"+snp_id+"_"+motif_id_name+".pdf")
-        all_expression_file=os.path.join(package_path,"Database/hg19/Expression_all/all_expression.csv")
+        all_expression_file=os.path.join(package_path_1,"Expression_all/all_expression.csv")
         #conservation_folder=os.path.join(package_path,"Database/hg19/SNP_conservation")
         #SNPMotifPlot.plot_motif_snp_pair_main(snp_motif_result_file, all_expression_file,snp_id, motif_id_name, rsid_motifid, pdffilename, conservation_folder)
-        catofile=os.path.join(package_path,"Database/hg19/SNP_Motif_score/CATO.txt")
+        catofile=os.path.join(package_path_1,"SNP_Motif_score/CATO.txt")
         snpfeaturefile=args.snp_feature_file
         SNPMotifPlot.plot_motif_snp_pair_main(snp_motif_result_file, all_expression_file,snp_id, motif_id_name, rsid_motifid, pdffilename, snpfeaturefile,catofile)
         print("Done!!!")
+    elif args.command=="snpscan":
+        genome_db=args.genome_df
+        indexed_genome_db=args.genome_df
+        pfm_folder=args.pfm_folder
+        mksary_path=args.mksary_path
+        if mksary_path=="":
+            mksary_path = os.path.join(package_path,"SNPScanner")
+        outputmotifscandir=args.outputmotifscandir
+        Motif_Scan.run_mksary(mksary_path, genome_db, genome_db, args.thread_num)
+        Motif_Scan.run_scan_motif(indexed_genome_db, pfm_folder, outputmotifscandir, args.thread_num)
+        print("Done!!!")
+    elif args.command=="set":
+        parametername=args.parametername
+        parametervalue=args.parametervalue
+        if parametername in global_df['para'].tolist():
+            global_df.loc[global_df['para'] == parametername, 'value'] = parametervalue
+            print("Set "+parametername+ " As "+parametervalue)
+        global_df.to_csv(globalfile,sep="\t",header=True,index=None)
+        print("Done!!!")
+    elif args.command=="info":
+        print("Motif-Raptor version: "+__version__)
+        print("package path: "+package_path)
+        print("Global Parameters : ")
+        print(global_df)
 if __name__=="__main__":
     main()
 

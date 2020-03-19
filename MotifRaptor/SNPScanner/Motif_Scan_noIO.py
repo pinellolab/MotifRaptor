@@ -204,9 +204,9 @@ def scan_motif(n, text, sa, lcp, pos_filename, outputdirname, motif_pfm_filename
             max1 = scores_in_ref[snp][max_pos_alt]
             max2 = max_score_alt
 
-
-        output_file.write(samplename + "\t" + str(snp_position) + "\t" + char_SNP_ref + "\t" + char_SNP_alt + "\t")
-        output_file.write(str(max1) + "\t" + str(max2) + "\t" + str(disruption_pos) + "\t" + str(disruption_score) + "\n")    
+#no Output file
+ #       output_file.write(samplename + "\t" + str(snp_position) + "\t" + char_SNP_ref + "\t" + char_SNP_alt + "\t")
+ #       output_file.write(str(max1) + "\t" + str(max2) + "\t" + str(disruption_pos) + "\t" + str(disruption_score) + "\n")    
 
     output_file.close()
     #print("Done scanning "+motifname+" in "+  str((time.time() - start_time)) + " seconds.")
@@ -288,16 +288,16 @@ def run_scan_motif(genome_database_folder, motif_pfm_folder, outputdirname, numb
         whole_scan_func=partial(scan_motif, n, text, sa, lcp, pos_filename, outputdirname)
         p.map(whole_scan_func, motif_files_matrix_tuple_list)
         p.close()
-        
+#no Outputfile        
     ###combine files by uid, and for all chromosomes
-    dirs_to_enc = []
-    for root, dirs, files in os.walk(outputdirname):
-        for dirname in dirs:
-            dirs_to_enc.append(os.path.join(root, dirname))
-    p=multiprocessing.Pool(processes=numberofthreads)
-    combine_func=partial(combine_clean_motifscanfiles,genome_database_folder, outputdirname)
-    p.map(combine_func, dirs_to_enc)
-    p.close()
+#    dirs_to_enc = []
+#    for root, dirs, files in os.walk(outputdirname):
+#        for dirname in dirs:
+#            dirs_to_enc.append(os.path.join(root, dirname))
+#    p=multiprocessing.Pool(processes=numberofthreads)
+#    combine_func=partial(combine_clean_motifscanfiles,genome_database_folder, outputdirname)
+#    p.map(combine_func, dirs_to_enc)
+#    p.close()
 
 
 def main():

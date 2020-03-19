@@ -4,7 +4,7 @@ import sys
 from pathlib import Path
 import os
 
-version="0.1.0"
+version="0.2.0"
 
 if sys.version_info.major != 3:
     raise RuntimeError('MotifRaptor requires Python 3')
@@ -34,6 +34,10 @@ try:
 except ImportError:
     os.system("pip install pybigwig")
     pass
+
+print("---------Install Thrid Party ----------")
+os.system("bash install.sh")
+
 
 setup(name='MotifRaptor',
     version=version,
