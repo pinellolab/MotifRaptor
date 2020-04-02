@@ -127,7 +127,10 @@ optional arguments:
    ```
    MotifRaptor snpscan -gi genome_index -pfm ./motifdatabase/pfmfiles -mo ./motifdatabase/motifscanfiles -p 4
    ```
-   *In the output folder, only '.scale' and '.score' files are useful. You may delete other files or folders.*
+   *In the output folder, only '.scale' and '.score' files are useful. You may delete intermediate results in those folders.*
+   ```
+   find ./motifdatabase/motifscanfiles/ -type d -exec rm -rf '{}' \;
+   ```
 
 
 ## Tutorial
