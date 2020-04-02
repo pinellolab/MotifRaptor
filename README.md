@@ -98,9 +98,9 @@ optional arguments:
    ```
    Skip the next section if you are only doing a tutorial.
    
-## Build complete motif database
+## Build a Complete Motif Database
    
-   (1) Download pfm files and change the motif database directory immediately
+   (1) Download pfm files and change the motif database directory immediately.
    ```
    wget https://www.dropbox.com/s/hx9av7o16efxmus/motifdatabase.zip
    unzip motifdatabase.zip
@@ -146,9 +146,11 @@ rs2258734 | 1 | 2483961 | A | G | 0.003
 **Example:**  Download the original data file from (Okada et al. 2010 Nature), and applying your own p-value cut-offs to define hits and nonhits. By default, p-value cutoff is 5E-8.
 
    ```
+   #wget https://www.dropbox.com/s/i4j0x8bp451wr6f/RA_GWASmeta_TransEthnic_v2.txt
    wget https://grasp.nhlbi.nih.gov/downloads/ResultsOctober2016/Okada/RA_GWASmeta_TransEthnic_v2.txt.gz
    gunzip RA_GWASmeta_TransEthnic_v2.txt.gz
    ```
+   
    In this file, columns 1,2,3,4,5,7 are ID,CHR,POS,REF,ALT,SCORE as defined above.
    ```
    MotifRaptor preprocess -gwas RA_GWASmeta_TransEthnic_v2.txt -cn 1,2,3,4,5,7 -st pvalue -th 5E-8
@@ -194,10 +196,13 @@ optional arguments:
                         threads for pvalue - default 5E-8
    ```
 
-**Bonus function:** Motif-Raptor allows user to preprocess from the UKBB (v3) summary statistics TSV files directly using a much simpler command.
+**Bonus function:** 
+
+Motif-Raptor allows user to preprocess from the UKBB (v3) summary statistics TSV files directly using a much simpler command.
 
    ```
-   MotifRaptor preprocess_ukbb_v3 -gwas ukbb.tsv -th 5E-8
+   wget https://www.dropbox.com/s/axthfv12j7pbav4/30690_raw.gwas.imputed_v3.both_sexes.tsv
+   MotifRaptor preprocess_ukbb_v3 -gwas 30690_raw.gwas.imputed_v3.both_sexes.tsv -th 5E-8
    ```
    
 ### step1. run cell type or tissue type characterization
@@ -467,4 +472,12 @@ optional arguments:
                         SNP motif pair-wise ID
 ```
 
+## Conclusion
+
+
+## Contact
+
+Luca Pinello: 
+
+Qiuming Yao: yao.ornl@gmail.com
 
