@@ -129,7 +129,8 @@ optional arguments:
    ```
    *In the output folder, only '.scale' and '.score' files are useful. You may delete intermediate results in those folders.*
    ```
-   find ./motifdatabase/motifscanfiles/ -type d -exec rm -rf '{}' \;
+   cd motifdatabase/motifscanfiles/
+   find ./ -type d -exec rm -rf '{}' \;
    ```
 
 
