@@ -477,10 +477,11 @@ optional arguments:
 
 ## Conclusion
 
+In summary, Motif-Raptor is a computational toolkit to test the significance of the effects of genetic variants from GWAS analyses on transcription factor binding sites. We believe that its adoption will help the genomic community in prioritizing potential cell type-specific, causal variants from GWAS summary statistics and to generate important hypotheses and insights to the mechanisms of action of genetic variants in complex disease.
 
 ## Contact
 
-Luca Pinello: 
+Luca Pinello: lpinello at mgh.harvard.edu
 
-Qiuming Yao: yao.ornl@gmail.com
+Qiuming Yao: yao.ornl at gmail.com
 
