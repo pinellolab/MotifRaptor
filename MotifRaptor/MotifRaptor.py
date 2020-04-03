@@ -28,12 +28,23 @@ else:
     from SNPMotifAnalyzer import SNPMotifPlot
     from SNPScanner import Motif_Scan
 
-__version__="0.2.0"
+__version__ = '0.3.0'
 
 def main():
     parser = argparse.ArgumentParser(prog='MotifRaptor', description='Analyze motifs and SNPs in the dataset.')
     subparsers = parser.add_subparsers(help='help for subcommand: celltype, snpmotif, snpfeature, motiffilter, motifspecific, snpspecific', dest="command")
-    parser.add_argument('--version', action='version', version='%(prog)s 0.2.0')
+    parser.add_argument('--version', action='version', version='%(prog)s 0.3.0')
+
+    parser_k = subparsers.add_parser('preprocess', help='Pre-process the summary statistics')
+    parser_k.add_argument('-gwas', '--gwas_summary', type=str, help='GWAS summary statistic file',dest="summarystatsfile")
+    parser_k.add_argument('-cn', '--column_numbers', type=str, help='provide six column numbers for information in such order: ID,CHR,POS,A1,A2,SCORE eg. 1,2,3,4,5,6',dest="column_numbers")
+    parser_k.add_argument('-st', '--score_type', type=str, default='pvalue',help='Score type in GWAS summary statistic file: pvalue or zscore or chisquare',dest="score_type")
+    parser_k.add_argument('-th', '--threshold', type=float, default=5E-8,help='threads for pvalue - default 5E-8',dest="score_pvalue_threshold")
+
+    parser_l = subparsers.add_parser('preprocess_ukbb_v3', help='Pre-process the summary statistics from UKBB version 3 TSV files')
+    parser_l.add_argument('-gwas', '--gwas_summary', type=str, help='GWAS summary statistic - UKBB v3 tsv filename',dest="summarystatsfile")
+    parser_l.add_argument('-th', '--threshold', type=float, default=5E-8,help='threads for pvalue - default 5E-8',dest="score_pvalue_threshold")
+
     parser_a = subparsers.add_parser('celltype', help='cell type or tissue type analysis help')
     parser_a.add_argument('-vcf', '--snp_hit_withseq', type=str, help='need header and columns in this text file with sequence (CHR is only a number): ID	CHR	POS	REF	ALT',dest="snp_hit_vcf")
     parser_a.add_argument('-sh', '--snp_hit', type=str, help='need header and columns in this text file (CHR is only a number): ID CHR     POS',dest="snp_hit")
@@ -77,12 +88,18 @@ def main():
     parser_f.add_argument('-sf', '--snp_feature_file', type=str, help='SNP feature file, usually from step2',dest="snp_feature_file")
     parser_f.add_argument('-pid', '--snp_motif_id', type=str, help='SNP motif pair-wise ID',dest="snp_motif_id")
 
-    parser_g = subparsers.add_parser('snpscan', help='index help')
-    parser_g.add_argument('-g', '--genome_db', type=str, help='genome_database_folder',dest="genome_db")
-    #parser_g.add_argument('-gi', '--indexed_genome_db', type=str, help='indexed genome_database_folder',dest="indexed_genome_db")
+
+    parser_j = subparsers.add_parser('snpindex', help='index the SNPs (with flanking sequences) help')
+    parser_j.add_argument('-vcf', '--vcf_filename', type=str, help='input - VCF file for SNPs, first five columns need to be CHR,POS,ID,REF,ALT',dest="vcf_filename")
+    parser_j.add_argument('-gi', '--indexed_genome_db', type=str, help='output - indexed genome_database_folder',dest="indexed_genome_db")
+    parser_j.add_argument('-mk', '--mksary', type=str, action='store', default='', help='Mksary program path',dest="mksary_path")
+    parser_j.add_argument('-p', '--threads', type=int, help='number of threads',dest="thread_num")
+
+    parser_g = subparsers.add_parser('snpscan', help='scan SNP database (already indexed) help')
+    #parser_g.add_argument('-g', '--genome_db', type=str, help='genome_database_folder',dest="genome_db")
+    parser_g.add_argument('-gi', '--indexed_genome_db', type=str, help='indexed genome_database_folder',dest="indexed_genome_db")
     parser_g.add_argument('-pfm', '--pfm_folder', type=str, help='motif pmf files folder',dest="pfm_folder")
     parser_g.add_argument('-mo', '--motifscan_output', type=str, action='store', default='./motifscanfiles', help='Motif Scan Ouput Folder',dest="outputmotifscandir")
-    parser_g.add_argument('-mk', '--mksary', type=str, action='store', default='', help='Mksary program path',dest="mksary_path")
     parser_g.add_argument('-p', '--threads', type=int, help='number of threads',dest="thread_num")
 
 
@@ -107,8 +124,8 @@ def main():
     #parser.print_help()
     #package_path=os.path.dirname(__file__)
     global_df=pd.read_csv(globalfile,header=0,sep="\t")
-    package_path_1 = global_df.loc[global_df['para']=="databasedir"]['value']
-    package_path_2 = global_df.loc[global_df['para']=="motifdatabasedir"]['value']
+    package_path_1 = global_df.loc[global_df['para']=="databasedir"]['value'].values[0]
+    package_path_2 = global_df.loc[global_df['para']=="motifdatabasedir"]['value'].values[0]
 
     if args.command=="celltype":
         print("Command: fetch the snp information ...")
@@ -297,17 +314,60 @@ def main():
         snpfeaturefile=args.snp_feature_file
         SNPMotifPlot.plot_motif_snp_pair_main(snp_motif_result_file, all_expression_file,snp_id, motif_id_name, rsid_motifid, pdffilename, snpfeaturefile,catofile)
         print("Done!!!")
-    elif args.command=="snpscan":
-        genome_db=args.genome_df
-        indexed_genome_db=args.genome_df
-        pfm_folder=args.pfm_folder
+
+
+    elif args.command=="preprocess":
+        sumstatsfile = args.summarystatsfile
+        score_type = args.score_type
+        pthreshold = args.score_pvalue_threshold
+
+        usecolumnsstring=args.column_numbers.strip().split(',')
+        usecolumns_list=[int(ai)-1 for ai in usecolumnsstring]
+        Preprocess.preprocess_summary_statistics_general(sumstatsfile,score_type,pthreshold,usecolumns_list)
+
+        print("Done!!!")
+
+    elif args.command=="preprocess_ukbb_v3":
+        ukbb_tsv_filename = args.summarystatsfile
+        
+        pthreshold = args.score_pvalue_threshold
+
+        Preprocess.preprocess_from_ukbb_v3(ukbb_tsv_filename,pthreshold)
+        print("Done!!!")
+
+    elif args.command=="snpindex":
+        outfolder=args.indexed_genome_db
+        if not os.path.exists(outfolder):
+            os.mkdir(outfolder)
+        vcf_filename = args.vcf_filename
+        usecolumns_list=[0,1,2,3,4]
+        column_renames_list=['CHR','POS','ID','REF','ALT']
+        window_size=30
+        genomefilename=os.path.join(package_path_1,"hg19.2bit")
+        Preprocess.preprocess_vcf_for_scan(genomefilename, vcf_filename, usecolumns_list, column_renames_list, outfolder, window_size) 
+
         mksary_path=args.mksary_path
         if mksary_path=="":
             mksary_path = os.path.join(package_path,"SNPScanner")
-        outputmotifscandir=args.outputmotifscandir
+        genome_db = outfolder
         Motif_Scan.run_mksary(mksary_path, genome_db, genome_db, args.thread_num)
-        Motif_Scan.run_scan_motif(indexed_genome_db, pfm_folder, outputmotifscandir, args.thread_num)
         print("Done!!!")
+
+    elif args.command=="snpscan":
+        indexed_genome_db=args.indexed_genome_db
+        pfm_folder=args.pfm_folder
+        outputmotifscandir=args.outputmotifscandir
+        #Motif_Scan.run_scan_motif(indexed_genome_db, pfm_folder, outputmotifscandir, args.thread_num)
+
+        snpmotifscale_command="python "+os.path.join(package_path,"SNPMotifAnalyzer/SNPMotifScan.py scale") \
+            +" -pfm "+pfm_folder \
+            +" -score "+outputmotifscandir \
+            +" -p "+str(args.thread_num)
+        print("Command : snpmotifscale_command")
+        status=os.system(snpmotifscale_command)
+
+        print("Done!!!")
+
     elif args.command=="set":
         parametername=args.parametername
         parametervalue=args.parametervalue

@@ -137,7 +137,7 @@ def write_scale_file(motif_pfm_folder, motif_scan_folder, motif_id):
 def run_scale(motif_pfm_folder, motif_scan_folder, numberofthreads):
     ext = [".scores"]
     motif_id_list = []
-    for file in os.listdir("./motifscanfiles"):
+    for file in os.listdir(motif_scan_folder):
         if file.endswith(tuple(ext)):
             motif_id=os.path.basename(file).replace(".scores","")
             motif_id_list.append(motif_id)

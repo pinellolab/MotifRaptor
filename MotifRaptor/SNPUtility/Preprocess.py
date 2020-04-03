@@ -2,7 +2,7 @@ import twobitreader
 import numpy as np
 import pandas as pd
 import os
-
+import scipy.stats as st
 
 def getseq_from_genome(from_genome,chromosomenum, start_pos, end_pos):
     #from_genome = twobitreader.TwoBitFile("hg19.2bit")
@@ -12,6 +12,7 @@ def getseq_from_genome(from_genome,chromosomenum, start_pos, end_pos):
 
 def preprocess_vcf_for_scan(genome, vcf_filename, usecolumns_list, column_renames_list, outfolder, window_size): 
     #genome = twobitreader.TwoBitFile("hg19.2bit")
+    genome = twobitreader.TwoBitFile(genome)
     #vcf_filename = "1000G.EUR.QC.plink.simple.vcf"
     #usecolumns_list=[0,1,2,3,4]
     #column_renames_list=['CHR','POS','ID','REF','ALT']
@@ -114,5 +115,107 @@ def preprocess_summary_statistics(sumstatsfile):
     hit_SNP_cvf_sub=hit_SNP_df[['ID','CHR','POS','A1','A2']]
     hit_SNP_vcf_sub.to_csv("hitSNP_list.vcf", sep='\t',index=None, header=True)
 
+def preprocess_summary_statistics_general(sumstatsfile,score_type,pthreshold,column_num_list):
+    #sumstatsfile="RA_GWASmeta_TransEthnic_v2.txt"
+    SNP_sumstat_dataframe=pd.read_csv(sumstatsfile,sep='\t')
+    SNP_sumstat_dataframe=SNP_sumstat_dataframe[SNP_sumstat_dataframe.columns[column_num_list]]
+    if score_type=="pvalue":
+        SNP_sumstat_dataframe.columns=['ID','CHR','POS','A1','A2','P-val']
+        #p=5E-8
+        p = pthreshold
+        hit_SNP_df=SNP_sumstat_dataframe[SNP_sumstat_dataframe['P-val']<=p]
+        nonhit_SNP_df=SNP_sumstat_dataframe[SNP_sumstat_dataframe['P-val']>p]
+        hit_SNP_df_sub=hit_SNP_df[['ID','CHR','POS']]
+        hit_SNP_df_sub.to_csv("hitSNP_list.txt", sep='\t',index=None, header=True)
+        nonhit_SNP_df_sub=nonhit_SNP_df[['ID','CHR','POS']]
+        nonhit_SNP_df_sub.to_csv("nonhitSNP_list.txt", sep='\t',index=None, header=True)
+        hit_SNP_vcf_sub=hit_SNP_df[['ID','CHR','POS','A1','A2']]
+        hit_SNP_vcf_sub.to_csv("hitSNP_list.vcf", sep='\t',index=None, header=True)
+    elif score_type=="zscore":
+        zcutoff=st.norm.ppf(pthreshold)
+        SNP_sumstat_dataframe.columns=['ID','CHR','POS','A1','A2','Z']
+        hit_SNP_df=SNP_sumstat_dataframe[SNP_sumstat_dataframe['Z']>np.abs(zcutoff)]
+        nonhit_SNP_df=SNP_sumstat_dataframe[SNP_sumstat_dataframe['Z']<=np.abs(zcutoff)]
 
+        hit_SNP_df_sub=hit_SNP_df[['ID','CHR','POS']]
+        hit_SNP_df_sub.to_csv("hitSNP_list.txt", sep='\t',index=None, header=True)
+        nonhit_SNP_df_sub=nonhit_SNP_df[['ID','CHR','POS']]
+        nonhit_SNP_df_sub.to_csv("nonhitSNP_list.txt", sep='\t',index=None, header=True)
+        hit_SNP_vcf_sub=hit_SNP_df[['ID','CHR','POS','A1','A2']]
+        hit_SNP_vcf_sub.to_csv("hitSNP_list.vcf", sep='\t',index=None, header=True)
+    elif score_type=="chisquare":
+        SNP_sumstat_dataframe.columns=['ID','CHR','POS','A1','A2','CHI']
+        p_list=[]
+        for ind in SNP_sumstat_dataframe.index:
+            chiscore = SNP_sumstat_dataframe.loc[ind]['CHI']
+            pvalue=1-st.chi2.cdf(float(chiscore), 1)
+            p_list.append(pvalue)
+        SNP_sumstat_dataframe['P-val']=p_list
+        p = pthreshold
+        hit_SNP_df=SNP_sumstat_dataframe[SNP_sumstat_dataframe['P-val']<=p]
+        nonhit_SNP_df=SNP_sumstat_dataframe[SNP_sumstat_dataframe['P-val']>p]
+        hit_SNP_df_sub=hit_SNP_df[['ID','CHR','POS']]
+        hit_SNP_df_sub.to_csv("hitSNP_list.txt", sep='\t',index=None, header=True)
+        nonhit_SNP_df_sub=nonhit_SNP_df[['ID','CHR','POS']]
+        nonhit_SNP_df_sub.to_csv("nonhitSNP_list.txt", sep='\t',index=None, header=True)
+        hit_SNP_vcf_sub=hit_SNP_df[['ID','CHR','POS','A1','A2']]
+        hit_SNP_vcf_sub.to_csv("hitSNP_list.vcf", sep='\t',index=None, header=True)
+
+
+def preprocess_from_ukbb_v3(ukbb_tsv_filename,pthreshold):
+    #sumstatsfile="30780_raw.gwas.imputed_v3.both_sexes.tsv"
+    sumstatsfile = ukbb_tsv_filename
+    SNP_sumstat_dataframe=pd.read_csv(sumstatsfile,sep='\t')
+
+    SNPID_list=[]
+    CHR_list=[]
+    POS_list=[]
+    A1_list=[]
+    A2_list=[]
+    pvalue_list=[]
+
+    for index in SNP_sumstat_dataframe.index:
+        thissnp=SNP_sumstat_dataframe.loc[index]
+        variant_element=thissnp['variant'].split(":")
+        #chromnum="chr"+str(variant_element[0])
+        chromnum=str(variant_element[0])
+        if chromnum=='X' or chromnum=='Y' or chromnum=='M':
+            continue
+        position_based_one=str(variant_element[1])
+        minorallele=thissnp['minor_allele']
+        major_allele=''
+        minor_allele=''
+        if minorallele==str(variant_element[2]):
+            major_allele=str(variant_element[3])
+            minor_allele=str(variant_element[2])
+        elif minorallele==str(variant_element[3]):
+            major_allele=str(variant_element[2])
+            minor_allele=str(variant_element[3])
+        snpid=chromnum+"_"+position_based_one+"_"+major_allele+"_"+minor_allele
+        SNPID_list.append(snpid)
+        CHR_list.append(chromnum)
+        POS_list.append(position_based_one)
+        A1_list.append(major_allele)
+        A2_list.append(minor_allele)
+        pvalue_list.append(float(thissnp['pval']))
+
+    outputdf=pd.DataFrame(columns=['ID','CHR','POS','A1','A2','P-val'])
+    outputdf['ID']=SNPID_list
+    outputdf['CHR']=CHR_list
+    outputdf['POS']=POS_list
+    outputdf['A1']=A1_list
+    outputdf['A2']=A2_list
+    outputdf['P-val']=pvalue_list
+
+    SNP_sumstat_dataframe=outputdf
+    #p=5E-8
+    p = pthreshold
+    hit_SNP_df=SNP_sumstat_dataframe[SNP_sumstat_dataframe['P-val']<=p]
+    nonhit_SNP_df=SNP_sumstat_dataframe[SNP_sumstat_dataframe['P-val']>p]
+    hit_SNP_df_sub=hit_SNP_df[['ID','CHR','POS']]
+    hit_SNP_df_sub.to_csv("hitSNP_list.txt", sep='\t',index=None, header=True)
+    nonhit_SNP_df_sub=nonhit_SNP_df[['ID','CHR','POS']]
+    nonhit_SNP_df_sub.to_csv("nonhitSNP_list.txt", sep='\t',index=None, header=True)
+    hit_SNP_vcf_sub=hit_SNP_df[['ID','CHR','POS','A1','A2']]
+    hit_SNP_vcf_sub.to_csv("hitSNP_list.vcf", sep='\t',index=None, header=True)
 

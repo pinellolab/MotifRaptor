@@ -4,7 +4,7 @@ import sys
 from pathlib import Path
 import os
 
-version="0.2.0"
+version="0.3.0"
 
 if sys.version_info.major != 3:
     raise RuntimeError('MotifRaptor requires Python 3')
