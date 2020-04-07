@@ -80,9 +80,20 @@ optional arguments:
 
    Database contains essential data for general analysis, including DHS tracks, TF RNA-seq expressions, TF motifs, and TF pre-calucated scores.
    
-   *The following file is a database containing a small number of TFs, in order to test the tutorial example on a regular machine. For a complete TF list, please refer to the section 'Build complete motif database'. We recommend running the full TF list and downstream analyses on a computer cluster.*
+   Please download the Database.zip from the links shown below. You can choose to download either a *testing database* or a *complete database*. The testing database contains all necessary files except that it only includes a handful number of TFs, in order for you to test the tutorial example on a regular machine. The complete database contains a complete list of TFs used in our real-world study, however, you need to have at least 220 G disk space, and we recommend running the programs on a cluster. 
+   
+   You may also choose to download the *testing database*, and then refer to the section *Build complete motif database* to compute a full TF list on your own, rather than downloading a big file. In this case, we also recommend running the programs on a cluster.
+   
+   
    ```
+   # A testing database can be downloaded here.
    wget https://www.dropbox.com/s/gxeyzgl5m0u55w8/Database.zip
+   unzip Database.zip
+   ```
+   
+   ```
+   # A complete database can be downloaded here. Make sure you have 220 G disk space.
+   wget https://www.dropbox.com/s/nslmuuydesterpg/Database.zip
    unzip Database.zip
    ```
    
