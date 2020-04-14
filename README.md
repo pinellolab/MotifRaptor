@@ -3,7 +3,7 @@
 ## Overview
 
 ##### Motivation: 
-Genome-wide association studies (GWAS) have identified thousands of common trait-associated genetic variants but interpretation of their function remains challenging. These genetic variants can overlap the binding sites of transcription factors (TFs) and therefore could alter gene expres-sion. However, we currently lack a systematic understanding on how this mechanism contrib-utes to phenotype. 
+Genome-wide association studies (GWAS) have identified thousands of common trait-associated genetic variants but interpretation of their function remains challenging. These genetic variants can overlap the binding sites of transcription factors (TFs) and therefore could alter gene expression. However, we currently lack a systematic understanding on how this mechanism contributes to phenotype. 
 ##### Results: 
 We present Motif-Raptor, a TF-centric computational tool that integrates sequence-based predic-tive models, chromatin accessibility, gene expression datasets and GWAS summary statistics to systematically investigate how TF function is affected by genetic variants. Given trait associated non-coding variants, Motif-Raptor can recover relevant cell types and critical TFs to drive hy-potheses regarding their mechanism of action. We tested Motif-Raptor on complex traits such as rheumatoid arthritis and red blood cell count and demonstrated its ability to prioritize relevant cell types, potential regulatory TFs and non-coding SNPs which have been previously characterized and validated.
 
