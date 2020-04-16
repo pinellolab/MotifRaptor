@@ -150,7 +150,7 @@ def main():
         hit_SNP_df=hit_SNP_df.set_index('ID')
         non_hit_SNP_df=pd.read_csv(args.snp_non_hit,sep='\t',header=0)
         non_hit_SNP_df=non_hit_SNP_df.set_index('ID')
-        CellTypeAnalysis.celltypeanalysis_main(args.workdir,hit_SNP_df, non_hit_SNP_df, args.thread_num)
+        CellTypeAnalysis.celltypeanalysis_main(package_path_1,args.workdir,hit_SNP_df, non_hit_SNP_df, args.thread_num)
         print("Command: plot figures ...")
         print("Done!!!")
     elif args.command=="snpmotif":

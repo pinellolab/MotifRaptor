@@ -103,15 +103,18 @@ def plotfigure_main(resultfilename,plotpdffilename):
     run_plot_figure(plotpdffilename, result_pvalue)
 
 
-def celltypeanalysis_main(work_dir,target_SNP_df, bg_SNP_df,numberofthreads):
+def celltypeanalysis_main(databasedir,work_dir,target_SNP_df, bg_SNP_df,numberofthreads):
     output_beds_dir=os.path.join(work_dir,"testcelltype")
     if not os.path.exists(output_beds_dir):
         os.mkdir(output_beds_dir)    
     #output_beds_dir="./testcelltype"
-    this_file_path=os.path.dirname(__file__)
-    celltypelistfile=os.path.join(this_file_path,"../Database/hg19/celltypelist.txt")
-    celltypemappingfile=os.path.join(this_file_path,"../Database/hg19/download_meta_tier123.txt")
-    DHSdir=os.path.join(this_file_path,"../Database/hg19/DHS_build/")
+    #this_file_path=os.path.dirname(__file__)
+    #celltypelistfile=os.path.join(this_file_path,"../Database/hg19/celltypelist.txt")
+    celltypelistfile=os.path.join(databasedir,"celltypelist.txt")
+    #celltypemappingfile=os.path.join(this_file_path,"../Database/hg19/download_meta_tier123.txt")
+    celltypemappingfile=os.path.join(databasedir,"download_meta_tier123.txt")
+    #DHSdir=os.path.join(this_file_path,"../Database/hg19/DHS_build/")
+    DHSdir=os.path.join(databasedir,"DHS_build")
     #numberofthreads=4
     #p=5E-8
 
