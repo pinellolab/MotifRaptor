@@ -168,7 +168,7 @@ rs2258734 | 1 | 2483961 | A | G | 0.003
    #gunzip RA_GWASmeta_TransEthnic_v2.txt.gz
    ```
    
-   In this file, columns 1,2,3,4,5,7 are ID,CHR,POS,REF,ALT,SCORE as defined above. Here the score is pvalue.
+   In this file, columns 1,2,3,4,5,8 are ID,CHR,POS,REF,ALT,SCORE as defined above. Here the score is pvalue.
    ```
    MotifRaptor preprocess -gwas RA_GWASmeta_TransEthnic_v2.txt -cn 1,2,3,4,5,8 -st pvalue -th 5E-8
    ```
