@@ -159,14 +159,23 @@ ID | CHR | POS | REF | ALT | SCORE(pvalue, zscore, or chisquare)
 rs2258734 | 1 | 2483961 | A | G | 0.003
 
 **Example:**  Download the original data file from (Okada et al. 2010 Nature), and applying your own p-value cut-offs to define hits and nonhits. By default, p-value cutoff is 5E-8.
-
+   This data file is ~450M. If your internet is limited, please download the zip file (~100M) and unzip it.
    ```
    wget https://www.dropbox.com/s/jnmpu63vqnlc0ig/RA_GWASmeta_TransEthnic_v2.txt
    
+   #alternative zip file
+   wget https://www.dropbox.com/s/c194x1z0bhntfbs/RA_GWASmeta_TransEthnic_v2.zip
+   unzip RA_GWASmeta_TransEthnic_v2.zip
+   ```
+   <!--
+
+   ```
    #original link of this data file (you don't need to download it again):
    #wget https://grasp.nhlbi.nih.gov/downloads/ResultsOctober2016/Okada/RA_GWASmeta_TransEthnic_v2.txt.gz
    #gunzip RA_GWASmeta_TransEthnic_v2.txt.gz
    ```
+
+   -->
    
    In this file, columns 1,2,3,4,5,9 are ID,CHR,POS,REF,ALT,SCORE as defined above. Here the score is pvalue.
    ```
