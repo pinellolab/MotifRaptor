@@ -178,8 +178,8 @@ rs2258734 | 1 | 2483961 | A | G | 0.003
 For the example from (Okada et al. 2010 Nature), you can also download our processed results, if you haven't run on your own.
    ```
    wget https://www.dropbox.com/s/gpnudp1ba4d2gq3/hitSNP_list.txt
-   wget https://www.dropbox.com/s/pq4ln4x19k567ua/nonhitSNP_list.txt
-   wget https://www.dropbox.com/s/939b3eb8cu1pd56/hitSNP_list.vcf
+   wget https://www.dropbox.com/s/7dfrph1dnrad894/nonhitSNP_list.txt
+   wget https://www.dropbox.com/s/73seqi42hgodupg/hitSNP_list.vcf
    ```
 **Double Check Output Format:** *hitSNP_list.txt* and *nonhitSNP_list.txt* are two files with the following format:
 
