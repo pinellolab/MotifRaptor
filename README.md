@@ -161,7 +161,7 @@ rs2258734 | 1 | 2483961 | A | G | 0.003
 **Example:**  Download the original data file from (Okada et al. 2010 Nature), and applying your own p-value cut-offs to define hits and nonhits. By default, p-value cutoff is 5E-8.
 
    ```
-   wget https://www.dropbox.com/s/i4j0x8bp451wr6f/RA_GWASmeta_TransEthnic_v2.txt
+   wget https://www.dropbox.com/s/jnmpu63vqnlc0ig/RA_GWASmeta_TransEthnic_v2.txt
    
    #original link of this data file (you don't need to download it again):
    #wget https://grasp.nhlbi.nih.gov/downloads/ResultsOctober2016/Okada/RA_GWASmeta_TransEthnic_v2.txt.gz
@@ -177,7 +177,7 @@ rs2258734 | 1 | 2483961 | A | G | 0.003
 **Output:** Information for SNP hits and non-hits. *hitSNP_list.txt*  *nonhitSNP_list.txt* and *hitSNP_list.vcf*
 For the example from (Okada et al. 2010 Nature), you can also download our processed results, if you haven't run on your own.
    ```
-   wget https://www.dropbox.com/s/as5i16fur4g90m0/hitSNP_list.txt
+   wget https://www.dropbox.com/s/gpnudp1ba4d2gq3/hitSNP_list.txt
    wget https://www.dropbox.com/s/pq4ln4x19k567ua/nonhitSNP_list.txt
    wget https://www.dropbox.com/s/939b3eb8cu1pd56/hitSNP_list.vcf
    ```
