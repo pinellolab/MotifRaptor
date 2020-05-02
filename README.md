@@ -93,7 +93,7 @@ optional arguments:
    
    ```
    # A complete database can be downloaded here. Make sure you have 220 G disk space.
-   wget https://www.dropbox.com/s/nslmuuydesterpg/Database.zip
+   wget https://www.dropbox.com/s/kp5r82x55tfgawf/Database.zip
    unzip Database.zip
    ```
    
