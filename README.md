@@ -117,6 +117,8 @@ optional arguments:
    unzip motifdatabase.zip
    MotifRaptor set -pn motifdatabasedir -pv $PWD/motifdatabase
    ```
+   *We use the JASPAR PFM format since it is well adopted and easy to download in batch from JASPAR database. This format is based on a simple flat file therefore it is easy to convert from/to. There are also computational tools that can be used directly to convert from other databases or file formats. For example, the biopython library has several parsers (Bio.motifs.pfm module) for PFM formats that can be used to generate a customized motif database.
+   https://biopython.org/docs/1.75/api/Bio.motifs.pfm.html*
    
    (2) Download SNP list from 1000 Genome project
    ```
