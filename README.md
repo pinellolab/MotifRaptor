@@ -111,14 +111,22 @@ optional arguments:
    
 ## Build a Complete Motif Database
    
-   (1) Download pfm files and change the motif database directory immediately.
+   (1) Download pfm files and change the motif database directory immediately. 
+   (Motif database is a folder that contains a set of TF motif files with JASPAR PFM format.)
    ```
    wget https://www.dropbox.com/s/hx9av7o16efxmus/motifdatabase.zip
    unzip motifdatabase.zip
    MotifRaptor set -pn motifdatabasedir -pv $PWD/motifdatabase
    ```
-   *We use the JASPAR PFM format since it is well adopted and easy to download in batch from JASPAR database. This format is based on a simple flat file therefore it is easy to convert from/to. There are also computational tools that can be used directly to convert from other databases or file formats. For example, the biopython library has several parsers (Bio.motifs.pfm module) for PFM formats that can be used to generate a customized motif database.
-   https://biopython.org/docs/1.75/api/Bio.motifs.pfm.html*
+   
+   *Motif-Raptor expects in input TF motif matrices in JASPAR PFM format. TF matrices in this format are stored as simple text flat files e.g.:*
+   ```
+   A [13 13 3 1 54 1 1 1 0 3 2 5 ]
+   C [13 39 5 53 0 1 50 1 0 37 0 17 ]
+   G [17 2 37 0 0 52 3 0 53 8 37 12 ]
+   T [11 0 9 0 0 0 0 52 1 6 15 20 ]
+   ```
+   *However TF matrices in other formats (e.g. MEME, TRANSFAC ) can be easily converted to this format with a simple text editor or in batch using the excellent Biopython library. This library offers several well documented parser that can be used for this task, see https://biopython.org/docs/1.75/api/Bio.motifs.html for more information.*
    
    (2) Download SNP list from 1000 Genome project
    ```
