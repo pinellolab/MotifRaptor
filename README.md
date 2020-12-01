@@ -508,6 +508,16 @@ optional arguments:
                         SNP motif pair-wise ID
 ```
 
+## Integration with other tools
+
+We also provide a Jupyter Notebook to show how to integrate DeepBind (or other external tools) in the step 2 of Motif-Raptor.
+
+https://github.com/pinellolab/MotifRaptor/raw/master/Document/Supplementary_Data_File_1.ipynb
+
+All the supporting files can be downloaded from this archive:
+
+https://github.com/pinellolab/MotifRaptor/raw/master/Document/deepbind_example.zip
+
 ## Conclusion
 
 In summary, Motif-Raptor is a computational toolkit to test the significance of the effects of genetic variants from GWAS analyses on transcription factor binding sites. We believe that its adoption will help the genomic community in prioritizing potential cell type-specific, causal variants from GWAS summary statistics and to generate important hypotheses and insights to the mechanisms of action of genetic variants in complex disease.
