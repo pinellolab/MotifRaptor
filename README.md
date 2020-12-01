@@ -512,7 +512,7 @@ optional arguments:
 
 We also provide a Jupyter Notebook to show how to integrate DeepBind (or other external tools) in the step 2 of Motif-Raptor.
 
-https://github.com/pinellolab/MotifRaptor/raw/master/Document/Supplementary_Data_File_1.ipynb
+https://github.com/pinellolab/MotifRaptor/blob/master/Document/Supplementary_Data_File_1.ipynb
 
 All the supporting files can be downloaded from this archive:
 
