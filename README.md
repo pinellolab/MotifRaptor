@@ -110,9 +110,11 @@ optional arguments:
    
    *For the current database, we only support human genome hg19. The genomic sequence is originally downloaded from UCSC (http://hgdownload.cse.ucsc.edu/goldenpath/hg19/bigZips/hg19.2bit). *
    
-   Skip the next section if you are only doing a tutorial.
+   Skip the next section if you are only doing an example tutorial without changing the TF motif set.
    
 ## Build a Complete Motif Database
+   
+   *You need this section only when you haven't downloaded the full version of the database with large amount of data in motifdatabase (from previous steps); rather, you would like to pay computing hours to calculate from scratch*
    
    (1) Download pfm files and change the motif database directory immediately. 
    (Motif database is a folder that contains a set of TF motif files with JASPAR PFM format.)
