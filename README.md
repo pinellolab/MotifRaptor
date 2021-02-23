@@ -107,6 +107,9 @@ optional arguments:
    ```
    MotifRaptor info
    ```
+   
+   *For the current database, we only support human genome hg19. The genomic sequence is originally downloaded from UCSC (http://hgdownload.cse.ucsc.edu/goldenpath/hg19/bigZips/hg19.2bit). *
+   
    Skip the next section if you are only doing a tutorial.
    
 ## Build a Complete Motif Database
@@ -139,7 +142,7 @@ optional arguments:
    1 | 2483961 | rs2258734 | A | G
    
    
-   (3) Index the SNP list
+   (3) Index the SNP list (genome_index is the output folder name which will be also used in next step.)
    ```
    MotifRaptor snpindex -vcf 1000G.EUR.QC.plink.simple.vcf -gi genome_index -p 4
    ```
