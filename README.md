@@ -145,6 +145,7 @@ optional arguments:
    
    
    (3) Index the SNP list (genome_index is the output folder name which will be also used in next step.)
+   *In this step, you will retrieve the flanking sequences centered by each SNP in order to generate indices files using the hg19 genome from the database (currently we only support hg19 as described before, so the vcf file should be also consistent with hg19)*
    ```
    MotifRaptor snpindex -vcf 1000G.EUR.QC.plink.simple.vcf -gi genome_index -p 4
    ```
