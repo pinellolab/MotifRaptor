@@ -15,7 +15,7 @@ We present Motif-Raptor, a TF-centric computational tool that integrates sequenc
 
    ```
    conda create -n motifraptor_env python=3.6
-   source activate motifraptor_env
+   conda activate motifraptor_env
    conda install -c bioconda motifraptor
    ```
    
