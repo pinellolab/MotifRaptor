@@ -11,6 +11,12 @@ We present Motif-Raptor, a TF-centric computational tool that integrates sequenc
 
 ## Installation
 
+0. Set channells
+
+conda config --add channels defaults
+conda config --add channels bioconda
+conda config --add channels conda-forge
+
 1. Install from Bioconda
 
    ```
